@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.text.ParseException;
 import java.util.Scanner;
@@ -16,6 +17,7 @@ public class AccountDAO {
 	private static final String isExistAdminQeury = "select account_type from account where id = ? AND password = ?";
 	private static final String getAccountInfoQuery = "select * from account where id = ? AND password = ?";
 	private static final String isExistAccountQuery = "select name from account where id = ? AND password = ?";
+	private static final String getNumberOfAdmin = "select count(id) from account where account_type = 'A'";
 	private static final String url = "jdbc:oracle:thin:@localhost:1600:xe";
 	private static final String user = "knu";
 	private static final String pw = "comp322";
@@ -26,6 +28,7 @@ public class AccountDAO {
 	private static final String regExpDate = "^[0-9][0-9][0-9][0-9]\\-[0-9][0-9]\\-[0-9][0-9]$";
 	private Connection con;
 	private PreparedStatement pstmt;
+	private Statement stmt;
 
 	public static void main(String[] args) {
 		String id = null, pw = null;
@@ -34,7 +37,8 @@ public class AccountDAO {
 
 		// 회원 정보 수정 필요
 //		dao.modifyAccountInfo("admin");
-		dao.login(id, pw);
+//		dao.login(id, pw);
+		dao.withdrawalAccount("nsun9505", "남상윤", "A");
 	}
 
 	public AccountDAO() {
@@ -224,6 +228,64 @@ public class AccountDAO {
 			}
 		}catch(SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
+		}
+	}
+	
+	// 회원탈퇴 기능 구현 완료
+	public void withdrawalAccount(String id, String name, String account_type) {
+		Scanner sc = new Scanner(System.in);
+		try {
+			if(account_type.equals("A")) {
+				stmt = con.createStatement();
+				ResultSet rs = stmt.executeQuery("select count(*) from account where account_type='A'");
+				rs.next();
+				int numOfAdmin = rs.getInt(1);
+				
+				rs.close();
+				stmt.close();
+				System.out.println("admin cnt : "+numOfAdmin);
+				if(numOfAdmin <= 1) {
+					System.out.println("관리자 계정은 최소 1개 이상 있어야 하므로  해당 관리자 계정("+id+")은 탈퇴할 수 없습니다.");
+					return;
+				}
+			}
+			
+			System.out.println("<<<회원 탈퇴>>>");
+			System.out.println("회원 탈퇴를 위해 비밀번호를 입력해주세요.");
+			System.out.print("비밀번호 입력 : ");
+			String pw = sc.nextLine();
+			
+			if(validCheck(pw, regExpPw) == false) {
+				System.out.println("비밃번호가 틀렸습니다. 이전 화면으로 돌아갑니다.");
+				return;
+			}
+			
+			pstmt = con.prepareStatement(isExistAccountQuery);
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				System.out.println(rs.getString(1)+"님 정말로 회원탈퇴를 하시겠습니까?(Y/N)");
+				if(sc.nextLine().toUpperCase().equals("Y")) {
+					pstmt = con.prepareStatement("delete from account where id = ?");
+					pstmt.setString(1, id);
+					int ret = pstmt.executeUpdate();
+					if(ret == 1)
+						System.out.println("회원탈퇴 완료!\n거래내역 정보는  3년간 유지가 된 후에 삭제가 되는 점 유의바랍니다.");
+					con.commit();
+				}
+				else {
+					System.out.println("회원탈퇴 취소");
+				}
+			}else {
+				System.out.println("비밀번호가 틀렸습니다. 이전 화면으로 돌아갑니다.");
+				return;
+			}
+			
+		}catch(SQLException e) {
+			System.err.println("sql error : " + e.getMessage());
+			System.exit(1);
 		}
 	}
 
