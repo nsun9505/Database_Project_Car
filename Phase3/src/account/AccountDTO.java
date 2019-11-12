@@ -25,6 +25,18 @@ public class AccountDTO {
 		this.account_type = type;
 	}
 	
+	public AccountDTO(AccountDTO cpDto) {
+		this.id = cpDto.getId();
+		this.pw = cpDto.getPw();
+		this.name = cpDto.getName();
+		this.phone_num = cpDto.getPhone_num();
+		this.address = cpDto.getAddress();
+		this.birth_date = cpDto.getBirth_date();
+		this.sex = cpDto.getSex();
+		this.job = cpDto.getJob();
+		this.account_type = cpDto.getAccount_type();
+	}
+	
 	public String getId() {
 		return id;
 	}
