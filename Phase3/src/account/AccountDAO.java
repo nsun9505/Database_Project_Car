@@ -596,6 +596,7 @@ public class AccountDAO {
 				ret = true;
 				break;
 			} else if(input.equals("N")) {
+				// 수정 필요
 				break;
 			} else {
 				System.out.println("N 또는 Y를 입력하세요.");
