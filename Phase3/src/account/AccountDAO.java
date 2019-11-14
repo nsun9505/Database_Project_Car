@@ -18,6 +18,8 @@ public class AccountDAO {
 	private static final String getAccountInfoQuery = "select * from account where id = ? AND password = ?";
 	private static final String isExistAccountQuery = "select name from account where id = ? AND password = ?";
 	private static final String getNumberOfAdmin = "select count(id) from account where account_type = 'A'";
+	private static final String modifyAccountInfoQuery = "update account set password=?, name=?, phone_number=?, address=?, bDate=?, sex=?, job=? where id=?";
+	private static final String modifyPasswordQuery = "update account set password=? where id=?";
 	private static final String url = "jdbc:oracle:thin:@localhost:1600:xe";
 	private static final String user = "knu";
 	private static final String pw = "comp322";
@@ -25,7 +27,7 @@ public class AccountDAO {
 	private static final String regExpPw = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z[0-9]$@$!%*#?&]{8,15}$";
 	private static final String regExpName = "^[°¡-ÆR]{2,4}|[a-zA-Z]{2,10}\\s[a-zA-Z]{2,10}$";
 	private static final String regExpPhoneNum = "^01(?:0|1[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$";
-	private static final String regExpDate = "^[0-9][0-9][0-9][0-9]\\-[0-9][0-9]\\-[0-9][0-9]$";
+	private static final String regExpDate = "^(19[0-9][0-9]|20\\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$";
 	private Connection con;
 	private PreparedStatement pstmt;
 	private Statement stmt;
@@ -34,10 +36,8 @@ public class AccountDAO {
 		String id = null, pw = null;
 		AccountDAO dao = new AccountDAO();
 //		dao.joinAccount();
-
-		// È¸¿ø Á¤º¸ ¼öÁ¤ ÇÊ¿ä
-//		dao.modifyAccountInfo("admin");
 //		dao.login(id, pw);
+		dao.modifyAccountInfo("nsun9505");
 		dao.withdrawalAccount("nsun9505", "³²»óÀ±", "A");
 	}
 
@@ -98,14 +98,27 @@ public class AccountDAO {
 		}
 
 		String id = getInputId(sc);
-		String pw;
-		while((pw = getInputPasswd(sc)) == null) { }
-		String name = getInputName(sc);
-		String phone_num = getInputPhoneNumber(sc);
-		String address = getInputAddress(sc);
-		String birth_date = getInputBirthDate(sc);
-		String sex = getInputSex(sc);
-		String job = getInputJob(sc);
+		String pw, name, phone_num;
+		while(true) {
+			pw = getInputPasswd(sc, "ºñ¹Ð¹øÈ£ ÀÔ·Â  : ");
+			if(pw != null)
+				break;
+		}
+		while(true) {
+			name = getInputName(sc, "ÀÌ¸§ ÀÔ·Â[ÇÊ¼öÁ¤º¸] : ");
+			if(name != null)
+				break;
+		}
+		while(true) {
+			phone_num = getInputPhoneNumber(sc, "ÇÚµåÆù ¹øÈ£ ÀÔ·Â[ÇÊ¼öÁ¤º¸] : ");
+			if(phone_num != null)
+				break;
+		}
+		System.out.println("¾Æ·¡ Á¤º¸µéÀº ÇÊ¼ö Á¤º¸°¡ ¾Æ´Õ´Ï´Ù. EnterKey¸¦ ´­·¯ ½ºÅµÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+ 		String address = getInputAddress(sc, "ÁÖ¼Ò ÀÔ·Á[ÇÊ¼ö¾Æ´Ô] : ");
+		String birth_date = getInputBirthDate(sc, "»ý³â¿ùÀÏ ÀÔ·Á[ÇÊ¼ö¾Æ´Ô] : ");
+		String sex = getInputSex(sc, "¼ºº° ÀÔ·Á[ÇÊ¼ö¾Æ´Ô] : ");
+		String job = getInputJob(sc, "Á÷¾÷ ÀÔ·Á[ÇÊ¼ö¾Æ´Ô] : ");
 
 		try {
 			pstmt = con.prepareStatement(insertAccountQuery);
@@ -114,22 +127,22 @@ public class AccountDAO {
 			pstmt.setString(3, name);
 			pstmt.setString(4, phone_num);
 
-			if (address == null || address.length() == 0)
+			if (address == null)
 				pstmt.setNull(5, Types.CHAR);
 			else
 				pstmt.setString(5, address);
 
-			if (birth_date == null || birth_date.length() == 0)
+			if (birth_date == null)
 				pstmt.setNull(6, Types.DATE);
 			else
 				pstmt.setDate(6, Date.valueOf(birth_date));
 
-			if (sex == null || sex.length() == 0)
+			if (sex == null)
 				pstmt.setNull(7, Types.CHAR);
 			else
 				pstmt.setString(7, sex);
 
-			if (job == null || job.length() == 0)
+			if (job == null)
 				pstmt.setNull(8, Types.CHAR);
 			else
 				pstmt.setString(8, job);
@@ -148,52 +161,132 @@ public class AccountDAO {
 	// È¸¿ø Á¤º¸ ¼öÁ¤
 	public void modifyAccountInfo(String id) {
 		Scanner sc = new Scanner(System.in);
-		AccountDTO dto = getAccountInfoById(id);
+		boolean flag = false;
+		int ret;
 
-		if (dto == null)
-			return;
+		System.out.println("<<<È¸¿ø Á¤º¸ ¼öÁ¤>>>");
+		AccountDTO dto = getAccountInfoById(id);
+		if (dto == null) {
+			System.out.println("ºñ¹Ð ¹øÈ£°¡ Æ²¸³´Ï´Ù. È¸¿ø Á¤º¸ ¼öÁ¤À» Á¾·áÇÕ´Ï´Ù.");
+			return;	
+		}
+
 		while (true) {
 			System.out.println("<<È¸¿ø Á¤º¸ ¼öÁ¤ Ç×¸ñ ¼±ÅÃ>>");
 			System.out.println("1. ¾ÆÀÌµð[¼öÁ¤ºÒ°¡] : " + dto.getId());
 			System.out.println("2. ºñ¹Ð¹øÈ£ : " + dto.getPw());
 			System.out.println("3. ÀÌ¸§ : " + dto.getName());
 			System.out.println("4. ÇÚµåÆù ¹øÈ£ : " + dto.getPhone_num());
-			System.out.println("5. ÁÖ¼Ò : " + dto.getAddress());
-			System.out.println("6. »ý³â¿ùÀÏ : " + dto.getBirth_date().toString());
-			System.out.println("7. ¼ºº° : " + dto.getSex());
-			System.out.println("8. Á÷¾÷ : " + dto.getJob());
+			System.out.println("5. ÁÖ¼Ò : " + (dto.getAddress() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getAddress()));
+			System.out.println("6. »ý³â¿ùÀÏ : " + (dto.getBirth_date() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getBirth_date().toString()));
+			System.out.println("7. ¼ºº° : " + (dto.getSex() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getSex()));
+			System.out.println("8. Á÷¾÷ : " + (dto.getJob() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getJob()));
 			System.out.println("9. ¼öÁ¤  ³»¿ë ÀúÀå ÈÄ Á¾·á");
+			System.out.println("0. ¼öÁ¤ ³»¿ë ÀúÀåÇÏÁö ¾Ê°í Á¾·á");
 			System.out.print("¼öÁ¤ Ç×¸ñ ¼±ÅÃ : ");
-		
-			switch (Integer.parseInt(sc.nextLine())) {
-			case 1:
+
+			switch (sc.nextLine()) {
+			case "1":
 				System.out.println("¾ÆÀÌµð´Â ¼öÁ¤ÇÒ ¼ö ¾ø½À´Ï´Ù.");
 				break;
-			case 2:
-				System.out.print("º¯°æÇÒ ºñ¹Ð¹øÈ£ ÀÔ·Â  : ");
+			case "2":
+				String pw = getInputPasswd(sc, "º¯°æÇÒ ºñ¹Ð¹øÈ£ ÀÔ·Â  : ");
+				if (pw != null) {
+					flag = true;
+					dto.setPw(pw);
+				}
 				break;
-			case 3:
-				System.out.print("º¯°æÇÒ ÀÌ¸§ ÀÔ·Â : ");
+			case "3":
+				String name = getInputName(sc, "º¯°æÇÒ ÀÌ¸§ ÀÔ·Â : ");
+				if (name != null) {
+					flag = true;
+					dto.setName(name);
+				}
 				break;
-			case 4:
-				System.out.print("º¯°æÇÒ ÇÚµåÆù ¹øÈ£ ÀÔ·Â : ");
+			case "4":
+				String phone_num = getInputPhoneNumber(sc, "º¯°æÇÒ ÇÚµåÆù ¹øÈ£ ÀÔ·Â : ");
+				if (phone_num != null) {
+					flag = true;
+					dto.setPhone_num(phone_num);
+				}
 				break;
-			case 5:
-				System.out.print("º¯°æÇÒ ÁÖ¼Ò ÀÔ·Â : ");
+			case "5":
+				String address = getInputAddress(sc, "º¯°æÇÒ ÁÖ¼Ò ÀÔ·Â : ");
+				if (address != null) {
+					flag = true;
+					dto.setAddress(address);
+				} else {
+					flag = decisionNullInput("address", dto, sc);
+				}
 				break;
-			case 6:
-				System.out.print("º¯°æÇÒ »ý³â¿ùÀÏ ÀÔ·Â : ");
+			case "6":
+				String bDate = getInputBirthDate(sc, "º¯°æÇÒ »ý³â¿ùÀÏ ÀÔ·Â : ");
+				if (bDate != null) {
+					flag = true;
+					dto.setBirth_date(Date.valueOf(bDate));
+				} else {
+					flag = decisionNullInput("birth_date", dto, sc);
+				}
 				break;
-			case 7:
-				System.out.print("º¯°æÇÒ ¼ºº° ÀÔ·Â : ");
+			case "7":
+				String sex = getInputSex(sc, "º¯°æÇÒ ¼ºº± ÀÔ·Â : ");
+				if (sex != null) {
+					flag = true;
+					dto.setSex(sex);
+				} else {
+					flag = decisionNullInput("sex", dto, sc);
+				}
 				break;
-			case 8:
-				System.out.print("º¯°æÇÒ Á÷¾÷ ÀÔ·Â : ");
+			case "8":
+				String job = getInputJob(sc, "º¯°æÇÒ Á÷¾÷ ÀÔ·Â : ");
+				if (job != null) {
+					flag = true;
+					dto.setJob(job);
+				} else {
+					flag = decisionNullInput("job", dto, sc);
+				}
 				break;
-			case 9:
-
+			case "9":
+				if (flag == false) {
+					System.out.println("¼öÁ¤ÇÑ ³»¿ëÀÌ ¾ø½À´Ï´Ù. È¸¿ø Á¤º¸ ¼öÁ¤À» Á¾·áÇÕ´Ï´Ù.");
+				} else {
+					try {
+						pstmt = con.prepareStatement(modifyAccountInfoQuery);
+						pstmt.setString(1, dto.getPw());
+						pstmt.setString(2, dto.getName());
+						pstmt.setString(3, dto.getPhone_num());
+						if (dto.getAddress() == null)
+							pstmt.setNull(4, Types.VARCHAR);
+						else
+							pstmt.setString(4, dto.getAddress());
+						if (dto.getBirth_date() == null)
+							pstmt.setNull(5, Types.DATE);
+						else
+							pstmt.setDate(5, dto.getBirth_date());
+						if (dto.getSex() == null)
+							pstmt.setNull(6, Types.VARCHAR);
+						else
+							pstmt.setString(6, dto.getSex());
+						if (dto.getJob() == null)
+							pstmt.setNull(7, Types.VARCHAR);
+						else
+							pstmt.setString(7, dto.getJob());
+						pstmt.setString(8, id);
+						ret = pstmt.executeUpdate();
+						if (ret == 1)
+							System.out.println("¼öÁ¤À» ¿Ï·áÇß½À´Ï´Ù. È¸¿ø Á¤º¸ ¼öÁ¤À» Á¾·áÇÕ´Ï´Ù.");
+						con.commit();
+					} catch (SQLException e) {
+						System.err.println("[modifyAccount method] sql error : " + e.getMessage());
+						return;
+					}
+				}
 				return;
+			case "0":
+				System.out.println("È¸¿ø Á¤º¸¸¦ ¼öÁ¤ÇÏÁö ¾Ê°í Á¾·áÇÕ´Ï´Ù.");
+				break;
 			default:
+				System.out.println("ÇöÀç ÀÔ·ÂÀº À¯È¿ÇÏÁö ¾ÊÀº ÀÔ·ÂÀÔ´Ï´Ù.");
 				break;
 			}
 		}
@@ -208,8 +301,6 @@ public class AccountDAO {
 			id = sc.nextLine();
 			System.out.print("ºñ¹Ð¹øÈ£ : ");
 			pw = sc.nextLine();
-			System.out.println(" " + (validCheck(id, regExpId) == false ? "false" : "true"));
-			System.out.println(" " + (validCheck(pw, regExpPw) == false ? "false" : "true"));
 			if(validCheck(id, regExpId) == false || validCheck(pw, regExpPw) == false) {
 				System.out.println("[·Î±×ÀÎ ½ÇÆÐ] °¡ÀÔÇÏÁö ¾ÊÀº ¾ÆÀÌµðÀÌ°Å³ª, Àß¸øµÈ ºñ¹Ð¹øÈ£ÀÔ´Ï´Ù.");
 				return;
@@ -243,7 +334,6 @@ public class AccountDAO {
 				
 				rs.close();
 				stmt.close();
-				System.out.println("admin cnt : "+numOfAdmin);
 				if(numOfAdmin <= 1) {
 					System.out.println("°ü¸®ÀÚ °èÁ¤Àº ÃÖ¼Ò 1°³ ÀÌ»ó ÀÖ¾î¾ß ÇÏ¹Ç·Î  ÇØ´ç °ü¸®ÀÚ °èÁ¤("+id+")Àº Å»ÅðÇÒ ¼ö ¾ø½À´Ï´Ù.");
 					return;
@@ -343,12 +433,12 @@ public class AccountDAO {
 		return src.matches(regExp);
 	}
 
-	private String getInputPasswd(Scanner sc) {
+	private String getInputPasswd(Scanner sc, String message) {
 		String pw = null;
 
 		System.out.println("ºñ¹Ð¹øÈ£´Â ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ[$@!%*#] 1°³ ÀÌ»óÀ» Á¶ÇÕÇÑ 8~15ÀÚ¸® ÀÔ´Ï´Ù.");
 		// ºñ¹Ð¹øÈ£ È­ÀÎ
-		System.out.print("ºñ¹Ð¹øÈ£ ÀÔ·Â : ");
+		System.out.print(message);
 		pw = sc.nextLine();
 
 		// ºñ¹Ð¹øÈ£ °Ë»ç : ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ¸¦ Æ÷ÇÔÇØ¾ß ÇÔ.
@@ -368,72 +458,78 @@ public class AccountDAO {
 		return pw;
 	}
 
-	private String getInputName(Scanner sc) {
+	private String getInputName(Scanner sc, String message) {
 		String name = null;
 		// ÀÌ¸§
 		System.out.println("ÀÌ¸§ Á¦¾à»çÇ× : (¿µ¾î FirstName(2~10ÀÚ¸®), LastName(2~10ÀÚ¸®)");
-		System.out.print("ÀÌ¸§ ÀÔ·Â : ");
+		System.out.print(message);
 		name = sc.nextLine();
 		if (validCheck(name, regExpName) == false) {
-			System.out.println("ÀÌ¸§Àº ÇÊ¼ö Ç×¸ñÀÌ¸ç Á¦¾à»çÇ×À» ÁöÄÑÁÖ¼¼¿ä.");
+			System.out.println("ÀÌ¸§ Á¦¾à»çÇ×À» ÁöÄÑÁÖ¼¼¿ä.");
 			return null;
 		}
 		return name;
 	}
 
-	private String getInputPhoneNumber(Scanner sc) {
+	private String getInputPhoneNumber(Scanner sc, String meesage) {
 		String phone_num = null;
 		// ÇÚµåÆù ¹øÈ£
 		System.out.println("ÇÚµåÆù ¹øÈ£ Á¦¾à»çÇ× : (¿¹½Ã 010-1234-1234 or 010-123-1234)");
-		System.out.print("ÇÚµåÆù ÀÔ·Â : ");
+		System.out.print(meesage);
 		phone_num = sc.nextLine();
 
 		if (validCheck(phone_num, regExpPhoneNum) == false) {
-			System.out.println("ÇÚµåÆù ¹øÈ£´Â ÇÊ¼ö Á¤º¸ÀÔ´Ï´Ù. ÀÔ·Â ºÎÅ¹µå¸³´Ï´Ù. Çü½Ä : 010-123-1234 or 010-1234-1234");
+			System.out.println("À¯È¿ÇÏÁö ¾ÊÀº Çü½Ä ÀÔ´Ï´Ù. : 010-123-1234 or 010-1234-1234");
 			return null;
 		}
 
 		return phone_num;
 	}
 
-	private String getInputAddress(Scanner sc) {
-		System.out.print("ÁÖ¼Ò ÀÔ·Â[ÇÊ¼ö ¾Æ´Ô]: ");
+	private String getInputAddress(Scanner sc, String message) {
+		System.out.print(message);
 		String address = sc.nextLine();
 		if (address == null || address.length() == 0)
 			return null;
 		return address;
 	}
 
-	private String getInputSex(Scanner sc) {
+	private String getInputSex(Scanner sc, String message) {
 		String sex = null;
 		System.out.println("¼ºº° (F:¿© / M : ³²)");
 		while (true) {
-			System.out.print("¼ºº° ÀÔ·Â : ");
+			System.out.print(message);
 			sex = sc.nextLine().toUpperCase();
 			if (sex == null || sex.length() == 0)
 				return null;
 			if (sex.equals("F") || sex.equals("M"))
 				break;
-			else
+			else {
 				System.out.println("¼ºº°À» ÀÔ·ÂÇÏ½Ç °æ¿ì F/f(¿©ÀÚ), M/m(³²ÀÚ)À¸·Î ÀÔ·Â ºÎÅ¹µå¸³´Ï´Ù.");
+				System.out.print("´Ù½Ã ÀÔ·ÂÇÏ½Ã°Ú½À´Ï±î?(Y/N) : ");
+				if(sc.nextLine().toUpperCase().equals("Y"))
+					continue;
+				else
+					return null;
+			}
 		}
 		return sex;
 	}
 
-	private String getInputJob(Scanner sc) {
-		System.out.print("Á÷¾÷ ÀÔ·Â[ÇÊ¼ö ¾Æ´Ô] : ");
+	private String getInputJob(Scanner sc, String message) {
+		System.out.print(message);
 		String job = sc.nextLine();
 		if (job == null || job.length() == 0)
 			return null;
 		return job;
 	}
 
-	private String getInputBirthDate(Scanner sc) {
+	private String getInputBirthDate(Scanner sc, String message) {
 		String bDate = null;
 
 		System.out.println("»ýÀÏ Á¦¾à»çÇ×[ÇÊ¼ö ¾Æ´Ô] : YYYY-MM-DD");
 		while (true) {
-			System.out.print("»ýÀÏ ÀÔ·Â : ");
+			System.out.print(message);
 			bDate = sc.nextLine();
 
 			if (bDate == null || bDate.length() == 0)
@@ -441,7 +537,11 @@ public class AccountDAO {
 
 			if (validCheck(bDate, regExpDate) == false) {
 				System.out.println("³â¿ùÀÏ(YYYY-MM-DD) Çü½ÄÀ» ÁöÄÑÁÖ½Ê½Ã¿À.");
-				continue;
+				System.out.print("´Ù½Ã ÀÔ·ÂÇÏ½Ã°Ú½À´Ï±î?(Y/N) : ");
+				if(sc.nextLine().toUpperCase().equals("Y"))
+					continue;
+				else
+					return null;
 			} else
 				break;
 		}
@@ -452,7 +552,6 @@ public class AccountDAO {
 		Scanner sc = new Scanner(System.in);
 		AccountDTO dto = null;
 		try {
-			System.out.println("<<<È¸¿ø Á¤º¸ ¼öÁ¤>>>");
 			System.out.println("È¸¿ø Á¤º¸ ¼öÁ¤À» À§ÇÏ¿© ºñ¹Ð¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.");
 			while (true) {
 				System.out.print("ºñ¹Ð¹øÈ£ ÀÔ·Â : ");
@@ -469,7 +568,9 @@ public class AccountDAO {
 					break;
 				} else {
 					System.out.print("ºñ¹Ð¹øÈ£°¡ Æ²¸³´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇÏ½Ã°Ú½À´Ï±î?(Y/N)");
-					if (sc.nextLine().toUpperCase().equals("N"))
+					if (sc.nextLine().toUpperCase().equals("Y"))
+						continue;
+					else
 						break;
 				}
 			}
@@ -480,5 +581,26 @@ public class AccountDAO {
 		}
 		return dto;
 	}
-
+	
+	// ¼öÁ¤ ÇÊ¿ä
+	private boolean decisionNullInput(String param, AccountDTO dto, Scanner sc) {
+		boolean ret = false;
+		while (true) {
+			System.out.println("ÀÔ·Â °ªÀÌ ¾ø½À´Ï´Ù. ÀÌ´ë·Î Àû¿ëÇÏ½Ã°Ú½À´Ï±î?(Y/N) : ");
+			String input = sc.nextLine().toUpperCase();
+			if (input.equals("Y")) {
+				if(param.equals("address")) dto.setAddress(null); 
+				else if(param.equals("birth_date")) dto.setBirth_date(null);
+				else if(param.equals("job")) dto.setJob(null);
+				else if(param.equals("sex")) dto.setSex(null);
+				ret = true;
+				break;
+			} else if(input.equals("N")) {
+				break;
+			} else {
+				System.out.println("N ¶Ç´Â Y¸¦ ÀÔ·ÂÇÏ¼¼¿ä.");
+			}
+		}
+		return ret;
+	}
 }
