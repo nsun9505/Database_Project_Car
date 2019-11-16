@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class AccountDAO {
@@ -32,20 +33,22 @@ public class AccountDAO {
 	private PreparedStatement pstmt;
 	private Statement stmt;
 
+/*	//Test Ok
 	public static void main(String[] args) {
+
 		String id = null, pw = null;
 		AccountDAO dao = new AccountDAO();
-//		dao.joinAccount();
-//		dao.login(id, pw);
-		dao.modifyAccountInfo("nsun9505");
-		dao.withdrawalAccount("nsun9505", "남상윤", "A");
+		dao.joinAccount();									// 회원가입
+		dao.login(id, pw);									// 로그인
+		dao.modifyAccountInfo("nsun9505");					// 회원 정보 수정 + 비밀번호 변경
+		dao.withdrawalAccount("nsun9505", "남상윤", "A");		// 회원 탈퇴 
 	}
-
+*/
 	public AccountDAO() {
 		connDB();
 	}
 
-	// 일반 고객 회원 가입
+	// 일반 고객 회원 가입 & 관리자 인증 후 관리자 가입 가능
 	public void joinAccount() {
 		Scanner sc = new Scanner(System.in);
 		String account_type = "C";
@@ -161,16 +164,24 @@ public class AccountDAO {
 	// 회원 정보 수정
 	public void modifyAccountInfo(String id) {
 		Scanner sc = new Scanner(System.in);
+		HashMap<String, Boolean> flags = new HashMap<String, Boolean>();
 		boolean flag = false;
 		int ret;
-
 		System.out.println("<<<회원 정보 수정>>>");
 		AccountDTO dto = getAccountInfoById(id);
 		if (dto == null) {
 			System.out.println("비밀 번호가 틀립니다. 회원 정보 수정을 종료합니다.");
 			return;	
 		}
-
+		
+		flags.put("password", false);
+		flags.put("name", false);
+		flags.put("phone_number", false);
+		flags.put("address", false);
+		flags.put("birth_date", false);
+		flags.put("sex", false);
+		flags.put("job", false);
+		
 		while (true) {
 			System.out.println("<<회원 정보 수정 항목 선택>>");
 			System.out.println("1. 아이디[수정불가] : " + dto.getId());
@@ -192,58 +203,67 @@ public class AccountDAO {
 			case "2":
 				String pw = getInputPasswd(sc, "변경할 비밀번호 입력  : ");
 				if (pw != null) {
-					flag = true;
+					flags.replace("password", true);
 					dto.setPw(pw);
 				}
 				break;
 			case "3":
 				String name = getInputName(sc, "변경할 이름 입력 : ");
 				if (name != null) {
-					flag = true;
+					flags.replace("name", true);
 					dto.setName(name);
 				}
 				break;
 			case "4":
 				String phone_num = getInputPhoneNumber(sc, "변경할 핸드폰 번호 입력 : ");
 				if (phone_num != null) {
-					flag = true;
+					flags.replace("phone_number", true);
 					dto.setPhone_num(phone_num);
 				}
 				break;
 			case "5":
 				String address = getInputAddress(sc, "변경할 주소 입력 : ");
 				if (address != null) {
-					flag = true;
+					flags.replace("address", true);
 					dto.setAddress(address);
 				} else {
 					flag = decisionNullInput("address", dto, sc);
+					if(flag && flag != flags.get("address"))
+						flags.replace("address", flag);
 				}
 				break;
 			case "6":
 				String bDate = getInputBirthDate(sc, "변경할 생년월일 입력 : ");
 				if (bDate != null) {
-					flag = true;
+					flags.put("birth_date", true);
 					dto.setBirth_date(Date.valueOf(bDate));
 				} else {
 					flag = decisionNullInput("birth_date", dto, sc);
+					if(flag && flag != flags.get("birth_date"))
+						flags.replace("birth_date", flag);
 				}
 				break;
 			case "7":
 				String sex = getInputSex(sc, "변경할 성볍 입력 : ");
 				if (sex != null) {
-					flag = true;
+					flags.put("sex", true);
 					dto.setSex(sex);
 				} else {
 					flag = decisionNullInput("sex", dto, sc);
+					if(flag && flag != flags.get("sex"))
+						flags.replace("sex", flag);
 				}
 				break;
 			case "8":
 				String job = getInputJob(sc, "변경할 직업 입력 : ");
 				if (job != null) {
-					flag = true;
+					flags.put("job", true);
 					dto.setJob(job);
 				} else {
 					flag = decisionNullInput("job", dto, sc);
+					if(flag && flag != flags.get("job"))
+						flags.replace("job", flag);
+
 				}
 				break;
 			case "9":
@@ -582,7 +602,6 @@ public class AccountDAO {
 		return dto;
 	}
 	
-	// 수정 필요
 	private boolean decisionNullInput(String param, AccountDTO dto, Scanner sc) {
 		boolean ret = false;
 		while (true) {
@@ -596,7 +615,6 @@ public class AccountDAO {
 				ret = true;
 				break;
 			} else if(input.equals("N")) {
-				// 수정 필요
 				break;
 			} else {
 				System.out.println("N 또는 Y를 입력하세요.");
