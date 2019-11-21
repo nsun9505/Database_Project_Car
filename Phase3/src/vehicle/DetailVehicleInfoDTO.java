@@ -69,4 +69,19 @@ public class DetailVehicleInfoDTO extends BasicVehicleInfoDTO{
 	public void setCountry(String country) {
 		this.country = country;
 	}
+
+	public void printInfo() {
+		System.out.println("제조사 : "+this.getMake());
+		System.out.println("모델/세부모델명 : "+this.getModel_name() + "/"+this.getDetailed_model_name());
+		System.out.println("차종 : "+this.getCategory());
+		System.out.println("차량번호 : " + this.getCar_number());
+		System.out.println("연식 : " +this.getModel_year().toString());
+		System.out.println("주행거리 : "+this.getMileage());
+		System.out.println("지역 : "+this.getLocation());
+		System.out.println("배기량 : "+this.getEngine_displacement()+"cc(전기차의 경우 cc는 0입니다.)");
+		System.out.println("연료 : "+this.getFuel());
+		System.out.println("변속기 : "+this.getTransmission());
+		System.out.println("색상 : " +this.getColor());
+		System.out.println("겨각 : "+this.getPrice());
+	}
 }
