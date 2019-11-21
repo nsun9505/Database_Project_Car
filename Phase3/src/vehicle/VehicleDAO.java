@@ -53,7 +53,7 @@ public class VehicleDAO {
 	// 즉 전체 정보를 DB에서 가져올 필요가 없고, 기본 정보만 출력하고
 	// 전체 정보는 Registration_number로 DB에 요청했을 때만 전체 정보를 출력.
 	// 기본 정보에 대한 정의 필요
-	public ArrayList<BasicVehicleInfoDTO> getAllSellingVehicleInfo(){
+	public ArrayList<BasicVehicleInfoDTO> getAllSellingVehicleInfo(ArrayList<String> metadata){
 		ArrayList<BasicVehicleInfoDTO> list = new ArrayList<BasicVehicleInfoDTO>();
 		ResultSet rs = null;
 			
@@ -61,6 +61,10 @@ public class VehicleDAO {
 			pstmt = con.prepareStatement(getSellingVehicleInfoQuery);
 			rs = pstmt.executeQuery();
 			
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int cnt = rsmd.getColumnCount();
+			for(int i=1; i<=cnt; i++)
+				metadata.add(rsmd.getColumnName(i));
 			while(rs.next()) {
 				list.add(new BasicVehicleInfoDTO(rs.getInt(1), rs.getString(2), rs.getString(3),
 						rs.getDate(4), rs.getInt(5), rs.getInt(6), rs.getString(7), 
