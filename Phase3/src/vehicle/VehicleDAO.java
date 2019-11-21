@@ -21,12 +21,12 @@ public class VehicleDAO {
 	private static final String pw = "comp322";
 	private PreparedStatement pstmt;
 	private Connection con;
-	
+
 	public VehicleDAO() {
 		connDB();
 	}
-	
-	public ArrayList<String> getTableColumnMetaData(String table_name){
+
+	public ArrayList<String> getTableColumnMetaData(String table_name) {
 		ArrayList<String> metadata = new ArrayList<String>();
 		ResultSet rs = null;
 		try {
@@ -34,118 +34,159 @@ public class VehicleDAO {
 			pstmt.setString(1, table_name);
 			rs = pstmt.executeQuery();
 
-			while(rs.next())
+			while (rs.next())
 				metadata.add(rs.getString(1));
-			
-		}catch(SQLException e) {
-			System.err.println("[getTableColumnMetaData()] sql error " +e.getMessage());
+
+		} catch (SQLException e) {
+			System.err.println("[getTableColumnMetaData()] sql error " + e.getMessage());
 		} finally {
 			try {
 				rs.close();
 				pstmt.close();
-			}catch(SQLException e) {
-				System.err.println("[getTableColumnMetaData()] sql error " +e.getMessage());
+			} catch (SQLException e) {
+				System.err.println("[getTableColumnMetaData()] sql error " + e.getMessage());
 			}
 		}
 		return metadata;
 	}
+
 	// 전체를 출력할 필요는 없음.
 	// 즉 전체 정보를 DB에서 가져올 필요가 없고, 기본 정보만 출력하고
 	// 전체 정보는 Registration_number로 DB에 요청했을 때만 전체 정보를 출력.
 	// 기본 정보에 대한 정의 필요
-	public ArrayList<BasicVehicleInfoDTO> getAllSellingVehicleInfo(ArrayList<String> metadata){
+	public ArrayList<BasicVehicleInfoDTO> getAllSellingVehicleInfo(ArrayList<String> metadata) {
 		ArrayList<BasicVehicleInfoDTO> list = new ArrayList<BasicVehicleInfoDTO>();
 		ResultSet rs = null;
-			
+
 		try {
 			pstmt = con.prepareStatement(getSellingVehicleInfoQuery);
 			rs = pstmt.executeQuery();
-			
+
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int cnt = rsmd.getColumnCount();
-			for(int i=1; i<=cnt; i++)
+			for (int i = 1; i <= cnt; i++)
 				metadata.add(rsmd.getColumnName(i));
-			while(rs.next()) {
-				list.add(new BasicVehicleInfoDTO(rs.getInt(1), rs.getString(2), rs.getString(3),
-						rs.getDate(4), rs.getInt(5), rs.getInt(6), rs.getString(7), 
-						rs.getString(8), rs.getString(9)));
+			while (rs.next()) {
+				list.add(new BasicVehicleInfoDTO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4),
+						rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8), rs.getString(9)));
 			}
-			
-		}catch(SQLException e) {
-			System.err.println("[getSellingVehicleInfo()] sql error " +e.getMessage());
+
+		} catch (SQLException e) {
+			System.err.println("[getSellingVehicleInfo()] sql error " + e.getMessage());
 		} finally {
 			try {
-				if(rs != null) rs.close();
-				if(pstmt != null) pstmt.close();
-			}catch(SQLException e) {
-				System.err.println("[getSellingVehicleInfo()] sql error " +e.getMessage());
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
+			} catch (SQLException e) {
+				System.err.println("[getSellingVehicleInfo()] sql error " + e.getMessage());
 			}
 		}
-		
+
 		return list;
 	}
-	
-	public ArrayList<String> getMakeList(){
+
+	public ArrayList<String> getMakeList() {
 		ArrayList<String> makeList = new ArrayList<String>();
 		ResultSet rs = null;
 		try {
 			pstmt = con.prepareStatement(getMakeListQuery);
 			rs = pstmt.executeQuery();
-			while(rs.next())
+			while (rs.next())
 				makeList.add(rs.getString(1));
 			rs.close();
 			pstmt.close();
-		}catch(SQLException e) {
-			System.err.println("[getMakeList] sql error : "+e.getMessage());
+		} catch (SQLException e) {
+			System.err.println("[getMakeList] sql error : " + e.getMessage());
 		}
 		return makeList;
 	}
-	
-	public ArrayList<String> getModelList(String make){
+
+	public ArrayList<String> getModelList(String make) {
 		ArrayList<String> modelList = new ArrayList<String>();
 		ResultSet rs = null;
 		try {
 			pstmt = con.prepareStatement("select model_name from model where make=?");
 			pstmt.setString(1, make);
 			rs = pstmt.executeQuery();
-			while(rs.next())
+			while (rs.next())
 				modelList.add(rs.getString(1));
-		}catch(SQLException e) {
-			System.err.println("[getModelList] sql error : "+e.getMessage());
+		} catch (SQLException e) {
+			System.err.println("[getModelList] sql error : " + e.getMessage());
 		} finally {
-			try {
-			rs.close();
-			pstmt.close();
-			}catch(SQLException e) {
-				System.err.println("[getModelList] sql error : "+e.getMessage());
-			}
-		}		
-		return modelList;
-	}
-	
-	public ArrayList<String> getDetailedModelList(String model_name){
-		ArrayList<String> dModelList = new ArrayList<String>();
-		ResultSet rs = null;
-		try {
-			pstmt = con.prepareStatement("select detailed_model_name from detailed_model where model_name=?");
-			pstmt.setString(1, model_name);
-			rs = pstmt.executeQuery();
-			while(rs.next())
-				dModelList.add(rs.getString(1));
-			
-		}catch(SQLException e) {
-			System.err.println("[getDetailedModelList] sql error : "+e.getMessage());
-		}finally {
 			try {
 				rs.close();
 				pstmt.close();
-			}catch(SQLException e) {
-				System.err.println("[getDetailedModelList] sql error : "+e.getMessage());
+			} catch (SQLException e) {
+				System.err.println("[getModelList] sql error : " + e.getMessage());
 			}
 		}
-		return dModelList;	
+		return modelList;
 	}
-	
+
+	public ArrayList<String> getDetailedModelList(String model_name) {
+		ArrayList<String> dModelList = new ArrayList<String>();
+		ResultSet rs = null;
+		String query = "select detailed_model_name from detailed_model";
+
+		// detailed_model_name만 선택해서 검색하는 경우
+		if (model_name == null)
+			query += " where model_name=?";
+
+		try {
+			pstmt = con.prepareStatement(query);
+
+			// detailed_model_name만 선택해서 검색하는 경우
+			if (model_name != null)
+				pstmt.setString(1, model_name);
+
+			rs = pstmt.executeQuery();
+			while (rs.next())
+				dModelList.add(rs.getString(1));
+
+		} catch (SQLException e) {
+			System.err.println("[getDetailedModelList] sql error : " + e.getMessage());
+		} finally {
+			try {
+				rs.close();
+				pstmt.close();
+			} catch (SQLException e) {
+				System.err.println("[getDetailedModelList] sql error : " + e.getMessage());
+			}
+		}
+		return dModelList;
+	}
+
+	public DetailVehicleInfoDTO getVehicleInfoByRegNum(int regNum) {
+		DetailVehicleInfoDTO ret = null;
+		String query = "select * from ALL_VEHICLE_INFO where registration_number=?";
+		ResultSet rs = null;
+
+		try {
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, regNum);
+			rs = pstmt.executeQuery();
+
+			if (rs.next())
+				ret = new DetailVehicleInfoDTO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),
+						rs.getString(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getDate(9), rs.getString(10),
+						rs.getInt(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15));
+			else
+				ret = null;
+		} catch (SQLException e) {
+			System.err.println("[getVehicleInfoByRegNum] sql error : " + e.getMessage());
+		} finally {
+			try {
+				if (rs != null)	rs.close();
+				if (pstmt != null) pstmt.close();
+			} catch (SQLException e) {
+				System.err.println("[getVehicleInfoByRegNum] sql error " + e.getMessage());
+			}
+		}
+		return ret;
+	}
+
 	protected void finalize() throws Throwable {
 		pstmt.close();
 		con.close();
