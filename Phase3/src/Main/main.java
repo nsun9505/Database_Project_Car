@@ -38,8 +38,14 @@ public class main {
 		// registration number를 통한 매물 상세 정보 가져오기 기능 ok
 		// DetailVehicleInfoDTO ret = VDao.getVehicleInfoByRegNum(1500);
 		
+		
+		// 조건 검색 기능 추가 중 19.11.22
 		Scanner sc = new Scanner(System.in);
 		HashMap<String, ArrayList<String>> conditions = new HashMap<String, ArrayList<String>>();
+		String searchQuery = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color "
+				+ "from ALL_VEHICLE_INFO "
+				+ "where registration_number "
+				+ "not in (select registration_number from order_list)";
 		while(true) {
 			System.out.println("1. 차종 선택");
 			System.out.println("2. 제조사/모델/세부모델 선택");
@@ -59,7 +65,6 @@ public class main {
 			String sel = sc.nextLine();
 			
 			if(sel.equals("1")){
-				
 				// 차종 조건 추가
 				if(conditions.get("category") == null) 
 					conditions.put("category", new ArrayList<String>());
@@ -117,10 +122,10 @@ public class main {
 				String regNum = null;
 				boolean flag = false;
 				while(true) {
-					System.out.print("등록번호(registration number) 입력 [나가기 : exit] : ");
+					System.out.print("등록번호(registration number) 입력 [취소 : -1] : ");
 					regNum = sc.nextLine();
 					
-					if(regNum.equals("exit"))
+					if(regNum.equals("-1"))
 						break;
 					
 					if(regNum.matches("[0-9]*") == false) {
@@ -182,5 +187,12 @@ public class main {
 			}
 		}
 		return isBuy;
+	}
+	
+	private String combineConditions(HashMap<String, ArrayList<String>> conditions) {
+		String query = null;
+		// 조건을 쿼리문으로 변환
+		
+		return query;
 	}
 }

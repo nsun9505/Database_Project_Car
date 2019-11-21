@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class VehicleDAO {
-	private static final String getSellingVehicleInfoQuery = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color from ALL_VEHICLE_INFO where registration_number not in (select registration_number from order_list) order by registration_number desc";
+	private static final String getBasicVehicleInfoQuery = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color from ALL_VEHICLE_INFO where registration_number not in (select registration_number from order_list) order by registration_number desc";
 	private static final String getTableColumnNamesQuery = "select cname from col where tname=?";
 	private static final String getMakeListQuery = "select * from make";
 	private static final String searchQuery = "select ? from selling_car";
@@ -59,7 +59,7 @@ public class VehicleDAO {
 		ResultSet rs = null;
 
 		try {
-			pstmt = con.prepareStatement(getSellingVehicleInfoQuery);
+			pstmt = con.prepareStatement(getBasicVehicleInfoQuery);
 			rs = pstmt.executeQuery();
 
 			ResultSetMetaData rsmd = rs.getMetaData();
