@@ -86,6 +86,33 @@ public class VehicleDAO {
 
 		return list;
 	}
+	
+	public ArrayList<BasicVehicleInfoDTO> getBasicVehicleInfoByQuery(String query){
+		ArrayList<BasicVehicleInfoDTO> list = null;
+		ResultSet rs = null;
+		try {
+			pstmt = con.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				list.add(new BasicVehicleInfoDTO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4),
+						rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8), rs.getString(9)));
+			}
+		}catch(SQLException e) {
+			System.err.println("[getBasicVehicleInfoByQuery] sql error : " + e.getMessage());
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
+			} catch (SQLException e) {
+				System.err.println("[getSellingVehicleInfo()] sql error " + e.getMessage());
+			}
+		}
+		
+		return list;
+	}
 
 	public ArrayList<String> getMakeList() {
 		ArrayList<String> makeList = new ArrayList<String>();
@@ -178,8 +205,10 @@ public class VehicleDAO {
 			System.err.println("[getVehicleInfoByRegNum] sql error : " + e.getMessage());
 		} finally {
 			try {
-				if (rs != null)	rs.close();
-				if (pstmt != null) pstmt.close();
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
 			} catch (SQLException e) {
 				System.err.println("[getVehicleInfoByRegNum] sql error " + e.getMessage());
 			}
@@ -204,4 +233,30 @@ public class VehicleDAO {
 			e.printStackTrace();
 		}
 	}
+
+	public ArrayList<String> getConditionList(String columnNmae, String whereClusure) {
+		ResultSet rs = null;
+		ArrayList<String> list = new ArrayList<String>();
+		String query = "select distinct " + columnNmae + " from ALL_VEHICLE_INFO WHERE registration_number not in (select registration_number from order_list) ";
+		if(whereClusure.length() != 0)
+			query += "AND " + whereClusure;
+		System.out.println(query);
+		try {
+			pstmt = con.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			while(rs.next())
+				list.add(rs.getString(1));
+		}catch(SQLException e) {
+			System.err.println("[getConditionList] sql error : " + e.getMessage());
+		} finally {
+			try {
+				if(rs != null) rs.close();
+				if(pstmt != null) pstmt.close();
+			} catch(SQLException e) {
+				System.err.println("[getConditionList] sql error : " + e.getMessage());
+			}
+		}
+		return list;
+	}
+
 }

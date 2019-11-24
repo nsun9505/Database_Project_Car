@@ -26,7 +26,7 @@ public class AccountDAO {
 	private static final String pw = "comp322";
 	private static final String regExpId = "^[a-zA-Z]{1}[a-zA-Z0-9]{4,14}$";
 	private static final String regExpPw = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z[0-9]$@$!%*#?&]{8,15}$";
-	private static final String regExpName = "^[°¡-ÆR]{2,4}|[a-zA-Z]{2,10}\\s[a-zA-Z]{2,10}$";
+	private static final String regExpName = "^[a-zA-Z]{2,10}\\s[a-zA-Z]{2,10}$";
 	private static final String regExpPhoneNum = "^01(?:0|1[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$";
 	private static final String regExpDate = "^(19[0-9][0-9]|20\\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$";
 	private Connection con;
