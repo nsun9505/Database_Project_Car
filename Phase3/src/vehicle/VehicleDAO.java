@@ -19,6 +19,7 @@ public class VehicleDAO {
 	private static final String url = "jdbc:oracle:thin:@localhost:1600:xe";
 	private static final String user = "knu";
 	private static final String pw = "comp322";
+	private static final String buyVehicleQuery = "insert into order_list values(?, 'admin', ?, sysdate)";
 	private PreparedStatement pstmt;
 	private Connection con;
 
@@ -86,19 +87,28 @@ public class VehicleDAO {
 
 		return list;
 	}
-	
-	public ArrayList<BasicVehicleInfoDTO> getBasicVehicleInfoByQuery(String query){
-		ArrayList<BasicVehicleInfoDTO> list = null;
+
+	public ArrayList<BasicVehicleInfoDTO> getBasicVehicleInfoByQuery(String whereClusure, ArrayList<String> metadata) {
+		ArrayList<BasicVehicleInfoDTO> list = new ArrayList<BasicVehicleInfoDTO>();
 		ResultSet rs = null;
+		String query = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color "
+				+ "from ALL_VEHICLE_INFO "
+				+ "where registration_number not in (select registration_number from order_list) ";
+		if (whereClusure != null)
+			query += "AND " + whereClusure;
+		System.out.println(query);
 		try {
 			pstmt = con.prepareStatement(query);
 			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int cnt = rsmd.getColumnCount();
+			for(int i=1; i<=cnt; i++)
+				metadata.add(rsmd.getColumnName(i));
+			while (rs.next()) {
 				list.add(new BasicVehicleInfoDTO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4),
 						rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8), rs.getString(9)));
 			}
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			System.err.println("[getBasicVehicleInfoByQuery] sql error : " + e.getMessage());
 		} finally {
 			try {
@@ -110,7 +120,7 @@ public class VehicleDAO {
 				System.err.println("[getSellingVehicleInfo()] sql error " + e.getMessage());
 			}
 		}
-		
+
 		return list;
 	}
 
@@ -237,26 +247,42 @@ public class VehicleDAO {
 	public ArrayList<String> getConditionList(String columnNmae, String whereClusure) {
 		ResultSet rs = null;
 		ArrayList<String> list = new ArrayList<String>();
-		String query = "select distinct " + columnNmae + " from ALL_VEHICLE_INFO WHERE registration_number not in (select registration_number from order_list) ";
-		if(whereClusure.length() != 0)
+		String query = "select distinct " + columnNmae
+				+ " from ALL_VEHICLE_INFO WHERE registration_number not in (select registration_number from order_list) ";
+		if (whereClusure != null)
 			query += "AND " + whereClusure;
-		System.out.println(query);
+		// System.out.println(query);
 		try {
 			pstmt = con.prepareStatement(query);
 			rs = pstmt.executeQuery();
-			while(rs.next())
+			while (rs.next())
 				list.add(rs.getString(1));
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			System.err.println("[getConditionList] sql error : " + e.getMessage());
 		} finally {
 			try {
-				if(rs != null) rs.close();
-				if(pstmt != null) pstmt.close();
-			} catch(SQLException e) {
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
+			} catch (SQLException e) {
 				System.err.println("[getConditionList] sql error : " + e.getMessage());
 			}
 		}
 		return list;
 	}
 
+	public void buyVehicle(String buyerId, int regNum) {
+		int ret = 0;
+		try {
+			pstmt = con.prepareStatement(buyVehicleQuery);
+			pstmt.setInt(1, regNum);
+			pstmt.setString(2, buyerId);
+			ret = pstmt.executeUpdate();
+			if(ret == 1)
+				System.out.println("구매 성공!");
+		}catch(SQLException e) {
+			System.err.println("[buyVehicle] sql error : " + e.getMessage());
+		}
+	}
 }

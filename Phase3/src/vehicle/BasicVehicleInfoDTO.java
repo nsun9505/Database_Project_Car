@@ -96,4 +96,11 @@ public class BasicVehicleInfoDTO {
 	public void setColor(String color) {
 		this.color = color;
 	}
+	
+	public void printBasicVehicleInfo() {
+		System.out.printf("%-20d %-15s %-20s %-10s %-7d %-15s %-20s %-15s %-20d\n",
+				 this.getRegNum(), this.getMake(), this.getDetailed_model_name(),
+				 this.getModel_year().toString(), this.getMileage(), this.getLocation(),
+				 this.getFuel(), this.getColor(), this.getPrice());
+	}
 }
