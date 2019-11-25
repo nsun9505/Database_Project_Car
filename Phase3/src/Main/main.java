@@ -122,8 +122,9 @@ public class main {
 				// 주행거리 조건 추가
 				String mileage = "";
 				String mileageSel = "";
+				// 최소, 최대 주행거리 선택
 				while(true) {
-					System.out.println("1.최소 연식 설정\t2.최대 연식 설정\t3.나가기");
+					System.out.println("1.최소 주행거리 설정\t2.최대 주행거리 설정\t3.나가기");
 					sel = sc.nextLine();
 					if(sel.equals("3"))
 						break;
@@ -140,12 +141,17 @@ public class main {
 						continue;
 					}
 				}
+				// 1번 선택, 즉 최소 주행거리를 선택한 경우(주행거리는 10000단위로 10000부터 200000까지 설정가능)
 				if(mileage.equals("min_mileage")) {
 					int lastIdx = 20;
+					// 이미 최대 주행거리가 있는경우
+					// 최소 주행거리의 범위는 10000 - 최대주행거리 - 10000
 					if(conditions.containsKey("max_mileage")) {
 						list = conditions.get("max_mileage");
 						lastIdx = (Integer.parseInt(list.get(0)) / 10000) - 1;
 					}
+					// 사용자 입력을 while(true)로 나가는 입력(-1) 또는 제대로 된 입력(10000~max mileage-10000)을
+					// 입력할 떄까지는 입력을 받으며 잘못된 범위의 값이나 문자 값을 입력했을 때는 오류를 출력하고 다시 입력을 받음.
 					while (true) {
 						System.out.println("최소 주행거리 선택");
 						for (int i = 1; i <= lastIdx; i++)
@@ -168,12 +174,15 @@ public class main {
 							System.out.println("다시 선택해주세요.");
 						}
 					}
-				} else if(mileage.equals("max_mileage")) {
+				}
+				// 사용자 입력을 while(true)로 나가는 입력(-1) 또는 유효 범위의 값(min mileage + 10000 ~ 200000)을
+				// 입력할 때까지 사용자 입력을 받으며 잘못된 범위의 값이나 문자 값을 입력했을 때는 오류를 출력하고 다시 입력 받음.
+				else if(mileage.equals("max_price")) {
 					int startIdx = 1;
-					if (conditions.containsKey("min_mileage")) {
-						list = conditions.get("min_mileage");
-						startIdx = (Integer.parseInt(list.get(0)) / 10000)+1;
-						if(startIdx == 21) {
+					if (conditions.containsKey("min_price")) {
+						list = conditions.get("min_price");
+						startIdx = (Integer.parseInt(list.get(0)) / 10000);
+						if(startIdx == 100) {
 							System.out.println("최소 주행거리가 200,000이므로 최대 주행거리를 선택할 수 없습니다.");
 							continue;
 						}
@@ -204,7 +213,110 @@ public class main {
 					}
 				}
 			}else if(sel.equals("5")) { 
-				// 가격 조건 추가 
+				//최소, 최대 가격 조건 추가 
+				String price = "";
+				String priceSel = "";
+				while(true) {
+					System.out.println("1.최소 가격 설정\t2.최대 가격 설정\t3.나가기");
+					sel = sc.nextLine();
+					if(sel.equals("3"))
+						break;
+					else if(sel.equals("1")) {
+						price ="min_price";
+						break;
+					}
+					else if(sel.equals("2")) {
+						price = "max_price";
+						break;
+					}
+					else {
+						System.out.println("유효하지 않은 입력 값입니다. 다시 입력 부탁드립니다.");
+						continue;
+					}
+				}
+				if(price.equals("min_price")) {
+					int lastIdx = 100;
+					if(conditions.containsKey("max_price")) {
+						list = conditions.get("max_price");
+						lastIdx = Integer.parseInt(list.get(0)) / 1000000;
+						lastIdx = lastIdx > 20 ? lastIdx - 10 : lastIdx - 1;
+					}
+					while (true) {
+						System.out.println("최소 가격 선택");
+						for (int i = 1; i <= lastIdx;) {
+							System.out.println(i + ". " + (i * 100)+"만원");
+							if(i < 20) i++;
+							else if(i >= 20 && i <=100) i += 10;
+						}
+						System.out.print("선택 [-1 : 선택취소]: ");
+						priceSel = sc.nextLine();
+						if(priceSel.equals("-1"))
+							break;
+						try {
+							int minPrice = Integer.parseInt(priceSel);
+							if (minPrice < 1 || minPrice > lastIdx) {
+								System.out.println("범위를 벗어나는 값입니다. 다시 선택 부탁드립니다.");
+								continue;
+							} else if(minPrice > 20 && minPrice%10 != 0) {
+								System.out.println("2000만원 이상 선택 시 10단위로 입력 부탁드립니다.");
+								continue;
+							}
+							list = new ArrayList<String>();
+							list.add(String.valueOf(minPrice * 1000000));
+							conditions.put("min_price", list);
+							break;
+						} catch (NumberFormatException e) {
+							System.out.println("다시 선택해주세요.");
+						}
+					}
+				}
+				// 사용자 입력을 while(true)로 나가는 입력(-1) 또는 유효 범위의 값(min price ~ 1억원)을
+				// 입력할 때까지 사용자 입력을 받으며 잘못된 범위의 값이나 문자 값을 입력했을 때는 오류를 출력하고 다시 입력 받음.
+				else if(price.equals("max_price")) {
+					int startIdx = 1;
+					if (conditions.containsKey("min_price")) {
+						list = conditions.get("min_price");
+						startIdx = (Integer.parseInt(list.get(0)) / 1000000);
+						// 시작 index가 최소 가격을 백만으로 나누었을 때
+						// 20 이상이면 +10, 20보다 작으면 +1을 하여 최소 가격보다 100만 또는 1000만원 이상부터 선택할 수 있음. 
+						startIdx = startIdx >= 20 ? startIdx + 10 : startIdx + 1;
+						if(startIdx > 100) {
+							System.out.println("설정된 최소 가격이 1억원이므로 최대 가격을 선택할 수 없습니다.");
+							continue;
+						}
+						
+					}
+
+					while (true) {
+						System.out.println("최대 가격 선택");
+						for (int i = startIdx; i <= 100;) {
+							System.out.println(i + ". " + i * 100);
+							if(i < 20) i++;
+							else if(i >= 20 && i <=100) i += 10;
+						}
+						System.out.print("선택 [-1 : 선택취소]: ");
+						priceSel = sc.nextLine();
+						if(priceSel.equals("-1"))
+							break;
+
+						try {
+							int maxPrice = Integer.parseInt(priceSel);
+							if (maxPrice < startIdx || maxPrice > 100) {
+								System.out.println("범위를 벗어나는 값입니다. 다시 선택 부탁드립니다.");
+								continue;
+							} else if(maxPrice > 20 && maxPrice%10 != 0) {
+								System.out.println("2000만원 이상 선택 시 10단위로 입력 부탁드립니다.");
+								continue;
+							}
+							list = new ArrayList<String>();
+							list.add(String.valueOf(maxPrice * 1000000));
+							conditions.put("max_price", list);
+							break;
+						} catch (NumberFormatException e) {
+							System.out.println("다시 선택해주세요.");
+						}
+					}
+				}
 				
 			} else if(sel.equals("6")) { 
 				// 지역 조건 추가 
