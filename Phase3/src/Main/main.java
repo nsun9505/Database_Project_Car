@@ -97,16 +97,17 @@ public class main {
 			} else if(sel.equals("3")) { 
 				// 연식 조건 추가 
 				String model_year = "";
+				String modelYearSel = "";
 				while(true) {
 					System.out.println("1.최소 연식 설정\t2.최대 연식 설정\t3.나가기");
-					sel = sc.nextLine();
-					if(sel.equals("3"))
+					modelYearSel = sc.nextLine();
+					if(modelYearSel.equals("3"))
 						break;
-					else if(sel.equals("1")) {
+					else if(modelYearSel.equals("1")) {
 						model_year ="min_model_year";
 						break;
 					}
-					else if(sel.equals("2")) {
+					else if(modelYearSel.equals("2")) {
 						model_year = "max_model_year";
 						break;
 					}
@@ -115,8 +116,62 @@ public class main {
 						continue;
 					}
 				}
-				if(model_year.length() != 0) {
-					setConditionForColumn(list, conditions, model_year);
+				if(model_year.equals("min_model_year")) {
+					String min_model_year = "";
+					String min_model_month = "";
+					int lastYearIdx = 2019;
+					int startYearIdx = 1980;
+					if(conditions.containsKey("max_model_year")) {
+						list = conditions.get("max_model_year");
+						lastYearIdx = Integer.parseInt(list.get(0).substring(0, 4));
+					}
+					
+					min_model_year = String.valueOf(getModelYear(startYearIdx, lastYearIdx));
+					if(min_model_year.equals("-1"))
+						continue;
+					
+					min_model_month = String.valueOf(getModelMonth(true, false));
+					if(min_model_month.length() == 1) min_model_month = "0"+min_model_month;
+					list = new ArrayList<String>();
+					list.add(min_model_year+"-"+min_model_month);
+					conditions.put("min_model_year", list);
+				} else if(model_year.equals("max_model_year")) {
+					String max_model_year = "";
+					String max_model_month = "";
+					int startYearIdx = 1980;
+					int lastYearIdx = 2019;
+					if(conditions.containsKey("min_model_year")) {
+						list = conditions.get("min_model_year");
+						startYearIdx = Integer.parseInt(list.get(0).substring(0, 4));
+					}
+					
+					max_model_year = String.valueOf(getModelYear(startYearIdx, lastYearIdx));
+					if(max_model_year.equals("-1"))
+						continue;
+					
+					max_model_month = String.valueOf(getModelMonth(false, true));
+					if(max_model_month.length() == 1) max_model_month = "0"+max_model_month;
+					list = new ArrayList<String>();
+					list.add(max_model_year+"-"+max_model_month);
+					conditions.put("max_model_year", list);
+				}
+				
+				if(conditions.containsKey("min_model_year") && conditions.containsKey("max_model_year")) {
+					list = conditions.get("min_model_year");
+					int min_model_year = Integer.parseInt(list.get(0).substring(0, 4));
+					int min_model_month = Integer.parseInt(list.get(0).substring(5));
+					
+					list = conditions.get("max_model_year");
+					int max_model_year = Integer.parseInt(list.get(0).substring(0, 4));
+					int max_model_month = Integer.parseInt(list.get(0).substring(5));
+					
+					if(min_model_year == max_model_year && min_model_month > max_model_month) {
+						ArrayList<String> temp = conditions.get("min_model_year");
+						conditions.put("min_model_year", conditions.get("max_model_year"));
+						conditions.put("max_model_year", temp);
+						System.out.println("min_model_month : "+conditions.get("min_model_year").toString());
+						System.out.println("max_model_month : "+conditions.get("max_model_year").toString());
+					}
 				}
 			} else if(sel.equals("4")) {
 				// 주행거리 조건 추가
@@ -604,6 +659,66 @@ public class main {
 			ret += query.get(i) + (i == query.size() - 1 ? " " : " AND ");
 
 		return ret;
+	}
+	
+	private static int getModelYear(int startYearIdx, int lastYearIdx) {
+		Scanner sc = new Scanner(System.in);
+		int model_year = -1;
+		while (true) {
+			System.out.printf("%-5s : 년도\n", "index");
+			for (int year = startYearIdx, i = 0; year <= lastYearIdx; year++, i++)
+				System.out.printf("%-5d : %d년\n", i + 1, year);
+			System.out.println("index 선택[선택 취소 : -1] : ");
+			String selYear = sc.nextLine();
+
+			try {
+				if (selYear.equals("-1"))
+					return -1;
+
+				int yearIdx = Integer.parseInt(selYear);
+				if (yearIdx < 1 || yearIdx > lastYearIdx) {
+					System.out.println("범위를 벗어나는 값입니다. 다시 입력 부탁드립니다.");
+					continue;
+				}
+				model_year = yearIdx + 1979;
+			} catch (NumberFormatException e) {
+				System.err.println("숫자(인덱스)만 입력해주세요.");
+			}
+			break;
+		}
+		return model_year;
+	}
+	
+	private static int getModelMonth(boolean isMinMonth, boolean isMaxMonth) {
+		Scanner sc = new Scanner(System.in);
+		int model_month = -1;
+		String monthSel = null;
+		while(true) {
+			System.out.printf("%5s : %5s\n", "index", "month");
+			for(int monthIdx = 1; monthIdx <= 12; monthIdx++) 
+				System.out.printf("%-5d : %-5d월\n", monthIdx, monthIdx);
+			System.out.print("index 선택[선택취소 : -1] : ");
+			monthSel = sc.nextLine();
+			// 선택 취소 시 default 값은 isMinMonth == true이면 month = 1
+			// 					  isMaxMonth == true이면 month = 12
+			if(monthSel.equals("-1") && isMinMonth)
+				return 1;
+			else if(monthSel.equals("-1") && isMaxMonth)
+				return 12;
+			try {
+			model_month = Integer.parseInt(monthSel);
+			
+			if(model_month < 1 || model_month > 12) {
+				System.out.println("범위를 벗어나는 값입니다. 다시 입력 부탁드립니다.");
+				continue;
+			}
+			
+			}catch(NumberFormatException e) {
+				System.err.println("숫자(인덱스)만 입력해주세요.");
+			} 
+			break;
+		}
+		return model_month;
 	}
 
 	private static boolean showDetailVehicleInfo(DetailVehicleInfoDTO info) {
