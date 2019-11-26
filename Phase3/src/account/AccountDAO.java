@@ -119,10 +119,10 @@ public class AccountDAO {
 				break;
 		}
 		System.out.println("아래 정보들은 필수 정보가 아닙니다. EnterKey를 눌러 스킵할 수 있습니다.");
-		String address = getInputAddress(sc, "주소 입려[필수아님] : ");
-		String birth_date = getInputBirthDate(sc, "생년월일 입려[필수아님] : ");
-		String sex = getInputSex(sc, "성별 입려[필수아님] : ");
-		String job = getInputJob(sc, "직업 입려[필수아님] : ");
+		String address = getInputAddress(sc, "주소 입력[필수아님] : ");
+		String birth_date = getInputBirthDate(sc, "생년월일 입력[필수아님] : ");
+		String sex = getInputSex(sc, "성별 입력[필수아님] : ");
+		String job = getInputJob(sc, "직업 입력[필수아님] : ");
 
 		try {
 			pstmt = con.prepareStatement(insertAccountQuery);
@@ -190,8 +190,7 @@ public class AccountDAO {
 			System.out.println("3. 이름 : " + dto.getName());
 			System.out.println("4. 핸드폰 번호 : " + dto.getPhone_num());
 			System.out.println("5. 주소 : " + (dto.getAddress() == null ? "[입력하지 않음]" : dto.getAddress()));
-			System.out.println(
-					"6. 생년월일 : " + (dto.getBirth_date() == null ? "[입력하지 않음]" : dto.getBirth_date().toString()));
+			System.out.println("6. 생년월일 : " + (dto.getBirth_date() == null ? "[입력하지 않음]" : dto.getBirth_date().toString()));
 			System.out.println("7. 성별 : " + (dto.getSex() == null ? "[입력하지 않음]" : dto.getSex()));
 			System.out.println("8. 직업 : " + (dto.getJob() == null ? "[입력하지 않음]" : dto.getJob()));
 			System.out.println("9. 수정  내용 저장 후 종료");
@@ -246,7 +245,7 @@ public class AccountDAO {
 				}
 				break;
 			case "7":
-				String sex = getInputSex(sc, "변경할 성볍 입력 : ");
+				String sex = getInputSex(sc, "변경할 성별 입력 : ");
 				if (sex != null) {
 					flags.put("sex", true);
 					dto.setSex(sex);
@@ -384,7 +383,7 @@ public class AccountDAO {
 			ResultSet rs = pstmt.executeQuery();
 
 			if (rs.next()) {
-				System.out.println(rs.getString(1) + "님 정말로 회원탈퇴를 하시겠습니까?(Y/N)");
+				System.out.print(rs.getString(1) + "님 정말로 회원탈퇴를 하시겠습니까?(Y/N)");
 				if (sc.nextLine().toUpperCase().equals("Y")) {
 					VehicleDAO VDao = new VehicleDAO();
 					OrderListDAO ODao = new OrderListDAO();
@@ -503,7 +502,8 @@ public class AccountDAO {
 	private String getInputName(Scanner sc, String message) {
 		String name = null;
 		// 이름
-		System.out.println("이름 제약사항 : (영어 FirstName(2~10자리), LastName(2~10자리)");
+		System.out.println("이름 제약사항 : ([영어] 형식 : [FirstName](2~10자리) [LastName](2~10자리)");
+		System.out.println("Ex. Gildong Hong처럼 FirstName과 LastName 사이에 공백 한 칸이 필요");
 		System.out.print(message);
 		name = sc.nextLine();
 		if (validCheck(name, regExpName) == false) {
@@ -627,7 +627,7 @@ public class AccountDAO {
 	private boolean decisionNullInput(String param, AccountDTO dto, Scanner sc) {
 		boolean ret = false;
 		while (true) {
-			System.out.println("입력 값이 없습니다. 이대로 적용하시겠습니까?(Y/N) : ");
+			System.out.print("입력 값이 없습니다. NULL값을 적용하시겠습니까?(Y/N) : ");
 			String input = sc.nextLine().toUpperCase();
 			if (input.equals("Y")) {
 				if (param.equals("address"))

@@ -22,7 +22,7 @@ public class VehicleDAO {
 	private static final String url = "jdbc:oracle:thin:@localhost:1600:xe";
 	private static final String user = "knu";
 	private static final String pw = "comp322";
-	private static final String buyVehicleQuery = "insert into order_list values(?, 'admin', ?, sysdate)";
+	private static final String buyVehicleQuery = "insert into order_list values(?, ?, ?, sysdate)";
 	private PreparedStatement pstmt;
 	private Connection con;
 
@@ -346,12 +346,13 @@ public class VehicleDAO {
 	}
 
 	// commit 완료
-	public void buyVehicle(String buyerId, int regNum) {
+	public void buyVehicle(String buyerId, int regNum, String seller_id) {
 		int ret = 0;
 		try {
 			pstmt = con.prepareStatement(buyVehicleQuery);
 			pstmt.setInt(1, regNum);
-			pstmt.setString(2, buyerId);
+			pstmt.setString(2, seller_id);
+			pstmt.setString(3, buyerId);
 			ret = pstmt.executeUpdate();
 			if(ret == 1)
 				System.out.println("구매 성공!");
@@ -376,7 +377,7 @@ public class VehicleDAO {
 				vehicleList = VDao.getBasicVehicleInfoByQuery(whereClusure, columnNames);
 				page = new Pagination(vehicleList.size());
 			}
-			System.out.print("검색된 매물 : "+vehicleList.size()+"\t");
+			System.out.print("검색된 매물 : "+vehicleList.size()+"개\t");
 			System.out.println("("+page.getCurPage()+"/"+page.getTotalPage()+")");
 			System.out.printf("%-20s %-15s %-20s %-10s %-7s %-15s %-20s %-15s %-20s\n",
 					 columnNames.get(0), columnNames.get(1), columnNames.get(2),
@@ -510,7 +511,7 @@ public class VehicleDAO {
 					return false;
 				}
 				if(getAnswerYesOrNo("정말로 구매하시겠습니까?(Y/N)", sc) == true) {
-					VDao.buyVehicle(buyerId, dto.getRegNum());
+					VDao.buyVehicle(buyerId, dto.getRegNum(), dto.getSellerId());
 					isUpdateCondition = true;
 					break;
 				}
@@ -546,21 +547,21 @@ public class VehicleDAO {
 		Scanner sc = new Scanner(System.in);
 		String selRegNum = "";
 		int regNum;
-		while(true) {
-			System.out.print("등록번호(registration number) 입력 [취소 : -1] : "); 
-			selRegNum = sc.nextLine();
-			if(selRegNum.equals("-1")) { 
-				System.out.println("등록번호로 차량 정보 보기 종료");
-				break;		
-			}
+		while (true) {
 			try {
+				System.out.print("등록번호(registration number) 입력 [취소 : -1] : ");
+				selRegNum = sc.nextLine();
+				if (selRegNum.equals("-1")) {
+					System.out.println("등록번호로 차량 정보 보기 종료");
+					break;
+				}
 				regNum = Integer.parseInt(selRegNum);
-				dto = VDao.getVehicleInfoByRegNum(regNum); 
-				if(dto == null)
+				dto = VDao.getVehicleInfoByRegNum(regNum);
+				if (dto == null)
 					System.out.println("해당 매물이 없습니다.");
-				else 
+				else
 					return dto;
-			}catch(NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				System.err.println("숫자만 입력해주세요.");
 			}
 		}
@@ -582,6 +583,7 @@ public class VehicleDAO {
 		}
 		
 		while (true) {
+			idx = 1;
 			System.out.println("0. 선택 조건 초기화");
 			for (String key : conditions.keySet()) {
 				System.out.println(idx++ + ". " + key + " : " + conditions.get(key).toString());
@@ -659,6 +661,8 @@ public class VehicleDAO {
 		System.out.println("<<<모델 이름 검색>>>");
 		System.out.println("모델 이름 : ");
 		String model_name = sc.nextLine();
+		if(model_name.equals(""))
+			return false;
 		
 		map = dao.isExistModelName(model_name);
 		
@@ -692,9 +696,11 @@ public class VehicleDAO {
 		boolean isUpdate = false;
 		System.out.println("<<세부모델 이름 검색>>>");
 		System.out.print("세부모델 이름(첫문자는 대문자) : ");
-		String deltailed_model_name = sc.nextLine();
+		String detailed_model_name = sc.nextLine();
+		if(detailed_model_name.equals(""))
+			return false;
 		
-		map = dao.isExistDetailedModelName(deltailed_model_name);
+		map = dao.isExistDetailedModelName(detailed_model_name);
 		
 		if(map != null) {
 			if(conditions.isEmpty() == false) {
@@ -718,7 +724,7 @@ public class VehicleDAO {
 			conditions.put("detailed_model_name", list);
 			isUpdate = true;
 		}else {
-			System.out.println("입력한 "+deltailed_model_name+"은 존재하지 않습니다.");
+			System.out.println("입력한 "+detailed_model_name+"은 존재하지 않습니다.");
 		}
 		return isUpdate;
 	}
@@ -798,6 +804,7 @@ public class VehicleDAO {
 		Scanner sc = new Scanner(System.in);
 		while(true) {
 			System.out.println("1."+condition1+"\t2."+condition2+"\t3.나가기");
+			System.out.print("선택 : ");
 			sel = sc.nextLine();
 			if(sel.equals("3"))
 				return "exit";
@@ -855,6 +862,7 @@ public class VehicleDAO {
 		String priceSel = "";
 		price = getSelectCondition("최소 가격 선택", "최대 가격 선택","min_price", "max_price");
 		ArrayList<String> list = null;
+
 		if(price.equals("exit"))
 			return false;
 		
@@ -906,6 +914,9 @@ public class VehicleDAO {
 
 			System.out.print(column +" 선택[exit입력 시 뒤로 돌아감] : ");
 			sel = sc.nextLine();
+			if(sel.equals(""))
+				return false;	
+
 			if(sel.equals("exit"))
 				return false;	
 
@@ -1140,13 +1151,15 @@ public class VehicleDAO {
 				System.out.printf("%-5d : %d년\n", i + 1, year);
 			System.out.println("index 선택[선택 취소 : -1] : ");
 			String selYear = sc.nextLine();
-
+			if(selYear.equals(""))
+				continue;
+			
 			try {
 				if (selYear.equals("-1"))
 					return -1;
 
 				int yearIdx = Integer.parseInt(selYear);
-				if (yearIdx < 1 || yearIdx > lastYearIdx) {
+				if (yearIdx < 1 || yearIdx > (lastYearIdx-startYearIdx+1)) {
 					System.out.println("범위를 벗어나는 값입니다. 다시 입력 부탁드립니다.");
 					continue;
 				}
@@ -1169,6 +1182,9 @@ public class VehicleDAO {
 				System.out.printf("%-5d : %-5d월\n", monthIdx, monthIdx);
 			System.out.print("index 선택[선택취소 : -1] : ");
 			monthSel = sc.nextLine();
+			
+			if(monthSel.equals(""))
+				continue;
 			// 선택 취소 시 default 값은 isMinMonth == true이면 month = 1
 			// 					  isMaxMonth == true이면 month = 12
 			if(monthSel.equals("-1") && isMinMonth)
@@ -1204,6 +1220,8 @@ public class VehicleDAO {
 				System.out.println(i + ". " + i * 10000);
 			System.out.print("선택 [-1 : 선택취소]: ");
 			mileageSel = sc.nextLine();
+			if(mileageSel.equals(""))
+				continue;
 			if(mileageSel.equals("-1"))
 				break;
 
@@ -1236,6 +1254,8 @@ public class VehicleDAO {
 			}
 			System.out.print("선택 [-1 : 선택취소]: ");
 			priceSel = sc.nextLine();
+			if(priceSel.equals(""))
+				continue;		
 			if(priceSel.equals("-1"))
 				break;
 

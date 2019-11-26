@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class OrderListDAO {
 	private String getRegNumbersByIdQuery = "select registration_number from order_list ";
 	private String getMyOrderListQuery = "";
-	private String getAllOrderListQuery = "select * from order_list where buyer_id is not null";
+	private String getAllOrderListQuery = "select * from order_list where buyer_id != 'admin'";
 	private static final String getTableColumnNamesQuery = "select cname from col where tname=?";
 	private String url = "jdbc:oracle:thin:@localhost:1600:xe";
 	private String user = "knu";
