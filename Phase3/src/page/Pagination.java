@@ -9,13 +9,18 @@ public class Pagination {
 	private int totalList;
 	private int startIdx;
 	private int lastIdx;
-	private int pagesize = 100;
+	private int curPage;
+	private int pageSize = 50;
 	
 	public Pagination(int list_size) {
-		this.totalPage = (int)Math.ceil(list_size*1.0/pagesize);
+		this.totalPage = (int)Math.ceil(list_size*1.0/pageSize);
 		this.totalList = list_size;
-		this.startIdx = 1;
-		this.lastIdx = this.getTotalPage();
+		this.curPage = 1;
+		this.startIdx = 0;
+		if(this.totalPage == 1)
+			this.lastIdx = list_size;
+		else
+			this.lastIdx = this.pageSize;
 	}
 
 	public int getTotalPage() {
@@ -50,12 +55,43 @@ public class Pagination {
 		this.lastIdx = lastIdx;
 	}
 
-	public int getPagesize() {
-		return pagesize;
+	public int getPageSize() {
+		return pageSize;
 	}
 
-	public void setPagesize(int pagesize) {
-		this.pagesize = pagesize;
+	public void setPageSize(int pagesize) {
+		this.pageSize = pagesize;
 	}
-	
+
+	public int getCurPage() {
+		return curPage;
+	}
+
+	public void setCurPage(int curPage) {
+		this.curPage = curPage;
+	}
+	public boolean nextPage() {
+		if(this.curPage == this.totalPage)
+			return false;
+		
+		this.setCurPage(this.getCurPage() + 1);
+		this.setStartIdx(this.getStartIdx() + this.getPageSize());
+		
+		if(this.getCurPage() == this.getTotalPage()) {
+			this.setLastIdx(this.getTotalList());
+		} else
+			this.setLastIdx(this.getLastIdx() + this.getPageSize());
+		return true;
+	}
+	public boolean prevPage() {
+		if(this.curPage == 1)
+			return false;
+		this.setCurPage(this.getCurPage() - 1);
+		this.setLastIdx(this.getLastIdx() - this.getPageSize());
+		if(this.getCurPage() == 1) {
+			this.setStartIdx(1);
+		} else
+			this.setStartIdx(this.getStartIdx() - this.getPageSize());
+		return true;
+	}
 }

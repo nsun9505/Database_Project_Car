@@ -12,12 +12,15 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import orderlist.OrderListDAO;
+import vehicle.VehicleDAO;
+
 public class AccountDAO {
 	private static final String insertAccountQuery = "insert into account values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String isExistIdQuery = "select count(id) from account where id = ?";
 	private static final String isExistAdminQeury = "select account_type from account where id = ? AND password = ?";
 	private static final String getAccountInfoQuery = "select * from account where id = ? AND password = ?";
-	private static final String isExistAccountQuery = "select name from account where id = ? AND password = ?";
+	private static final String isExistAccountQuery = "select id, name, account_type from account where id = ? AND password = ?";
 	private static final String getNumberOfAdmin = "select count(id) from account where account_type = 'A'";
 	private static final String modifyAccountInfoQuery = "update account set password=?, name=?, phone_number=?, address=?, bDate=?, sex=?, job=? where id=?";
 	private static final String modifyPasswordQuery = "update account set password=? where id=?";
@@ -267,44 +270,45 @@ public class AccountDAO {
 				}
 				break;
 			case "9":
-				if (flag == false) {
-					System.out.println("수정한 내용이 없습니다. 회원 정보 수정을 종료합니다.");
-				} else {
-					try {
-						pstmt = con.prepareStatement(modifyAccountInfoQuery);
-						pstmt.setString(1, dto.getPw());
-						pstmt.setString(2, dto.getName());
-						pstmt.setString(3, dto.getPhone_num());
-						if (dto.getAddress() == null)
-							pstmt.setNull(4, Types.VARCHAR);
-						else
-							pstmt.setString(4, dto.getAddress());
-						if (dto.getBirth_date() == null)
-							pstmt.setNull(5, Types.DATE);
-						else
-							pstmt.setDate(5, dto.getBirth_date());
-						if (dto.getSex() == null)
-							pstmt.setNull(6, Types.VARCHAR);
-						else
-							pstmt.setString(6, dto.getSex());
-						if (dto.getJob() == null)
-							pstmt.setNull(7, Types.VARCHAR);
-						else
-							pstmt.setString(7, dto.getJob());
-						pstmt.setString(8, id);
-						ret = pstmt.executeUpdate();
-						if (ret == 1)
-							System.out.println("수정을 완료했습니다. 회원 정보 수정을 종료합니다.");
-						con.commit();
-					} catch (SQLException e) {
-						System.err.println("[modifyAccount method] sql error : " + e.getMessage());
-						return;
+				for(String key : flags.keySet()) {
+					if(flags.get(key) == true) {
+						try {
+							pstmt = con.prepareStatement(modifyAccountInfoQuery);
+							pstmt.setString(1, dto.getPw());
+							pstmt.setString(2, dto.getName());
+							pstmt.setString(3, dto.getPhone_num());
+							if (dto.getAddress() == null)
+								pstmt.setNull(4, Types.VARCHAR);
+							else
+								pstmt.setString(4, dto.getAddress());
+							if (dto.getBirth_date() == null)
+								pstmt.setNull(5, Types.DATE);
+							else
+								pstmt.setDate(5, dto.getBirth_date());
+							if (dto.getSex() == null)
+								pstmt.setNull(6, Types.VARCHAR);
+							else
+								pstmt.setString(6, dto.getSex());
+							if (dto.getJob() == null)
+								pstmt.setNull(7, Types.VARCHAR);
+							else
+								pstmt.setString(7, dto.getJob());
+							pstmt.setString(8, id);
+							ret = pstmt.executeUpdate();
+							if (ret == 1)
+								System.out.println("수정을 완료했습니다. 회원 정보 수정을 종료합니다.");
+							con.commit();
+						} catch (SQLException e) {
+							System.err.println("[modifyAccount method] sql error : " + e.getMessage());
+							return;
+						}
+						break;
 					}
 				}
 				return;
 			case "0":
 				System.out.println("회원 정보를 수정하지 않고 종료합니다.");
-				break;
+				return;
 			default:
 				System.out.println("현재 입력은 유효하지 않은 입력입니다.");
 				break;
@@ -313,26 +317,29 @@ public class AccountDAO {
 	}
 	
 	// 로그인 기능 구현
-	public void login(String id, String pw) {
+	public AccountDTO login() {
 		Scanner sc = new Scanner(System.in);
+		AccountDTO dto = null;
+		String id, pw;
 		try {
 			System.out.println("<<<로그인>>>");
 			System.out.print("아이디 : ");
 			id = sc.nextLine();
 			System.out.print("비밀번호 : ");
 			pw = sc.nextLine();
-			if(validCheck(id, regExpId) == false || validCheck(pw, regExpPw) == false) {
-				System.out.println("[로그인 실패] 가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.");
-				return;
-			}
+			System.out.println(id + " " + pw);
+//			if(validCheck(id, regExpId) == false || validCheck(pw, regExpPw) == false) {
+//				System.out.println("[로그인 실패] 가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.");
+//				return null;
+//			}
 			
 			pstmt = con.prepareStatement(isExistAccountQuery);
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			ResultSet rs = pstmt.executeQuery();
 			if(rs.next()) {
-				String name = rs.getString(1);
-				System.out.println("[로그인 성공] "+ name + "님 환영합니다!");
+				dto = new AccountDTO(rs.getString(1), rs.getString(2), rs.getString(3));
+				System.out.println("[로그인 성공] "+ dto.getName() + "님 환영합니다!");
 			}
 			else {
 				System.out.println("[로그인 실패] 가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.");
@@ -340,10 +347,11 @@ public class AccountDAO {
 		}catch(SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
 		}
+		return dto;
 	}
 	
 	// 회원탈퇴 기능 구현 완료
-	public void withdrawalAccount(String id, String name, String account_type) {
+	public boolean withdrawalAccount(String id, String name, String account_type) {
 		Scanner sc = new Scanner(System.in);
 		try {
 			if(account_type.equals("A")) {
@@ -356,7 +364,7 @@ public class AccountDAO {
 				stmt.close();
 				if(numOfAdmin <= 1) {
 					System.out.println("관리자 계정은 최소 1개 이상 있어야 하므로  해당 관리자 계정("+id+")은 탈퇴할 수 없습니다.");
-					return;
+					return true;
 				}
 			}
 			
@@ -364,12 +372,12 @@ public class AccountDAO {
 			System.out.println("회원 탈퇴를 위해 비밀번호를 입력해주세요.");
 			System.out.print("비밀번호 입력 : ");
 			String pw = sc.nextLine();
-			
+/*			
 			if(validCheck(pw, regExpPw) == false) {
 				System.out.println("비밃번호가 틀렸습니다. 이전 화면으로 돌아갑니다.");
-				return;
+				return true;
 			}
-			
+*/		
 			pstmt = con.prepareStatement(isExistAccountQuery);
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
@@ -378,25 +386,33 @@ public class AccountDAO {
 			if(rs.next()) {
 				System.out.println(rs.getString(1)+"님 정말로 회원탈퇴를 하시겠습니까?(Y/N)");
 				if(sc.nextLine().toUpperCase().equals("Y")) {
+					VehicleDAO VDao = new VehicleDAO();
+					OrderListDAO ODao = new OrderListDAO();
+					int[] regNums = {0};
+					ODao.deleteOrderListByBuyerId(id);
+					for(int i=0; i<regNums.length; i++)
+						VDao.deleteVehicle(regNums[i]);
 					pstmt = con.prepareStatement("delete from account where id = ?");
 					pstmt.setString(1, id);
 					int ret = pstmt.executeUpdate();
 					if(ret == 1)
 						System.out.println("회원탈퇴 완료!\n거래내역 정보는  3년간 유지가 된 후에 삭제가 되는 점 유의바랍니다.");
 					con.commit();
+					return false;
 				}
 				else {
 					System.out.println("회원탈퇴 취소");
+					return true;
 				}
 			}else {
 				System.out.println("비밀번호가 틀렸습니다. 이전 화면으로 돌아갑니다.");
-				return;
+				return true;
 			}
 			
 		}catch(SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
-			System.exit(1);
 		}
+		return true;
 	}
 
 	protected void finalize() throws Throwable {

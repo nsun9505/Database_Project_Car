@@ -13,6 +13,12 @@ public class AccountDTO {
 	private String job;
 	private String account_type;
 	
+	public AccountDTO(String id, String name, String type) {
+		this.id = id;
+		this.name = name;
+		this.account_type = type;
+	}
+	
 	public AccountDTO(String id, String pw, String name, String phone_num, String addr, Date bDate, String sex, String job, String type) {
 		this.id = id;
 		this.pw = pw;

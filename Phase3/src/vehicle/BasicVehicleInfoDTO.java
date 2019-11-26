@@ -1,6 +1,7 @@
 package vehicle;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 public class BasicVehicleInfoDTO {
 	private int regNum;
@@ -98,9 +99,11 @@ public class BasicVehicleInfoDTO {
 	}
 	
 	public void printBasicVehicleInfo() {
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM");
+		String model_year = sdfDate.format(this.getModel_year());
 		System.out.printf("%-20d %-15s %-20s %-10s %-7d %-15s %-20s %-15s %-20d\n",
 				 this.getRegNum(), this.getMake(), this.getDetailed_model_name(),
-				 this.getModel_year().toString(), this.getMileage(), this.getLocation(),
+				 model_year, this.getMileage(), this.getLocation(),
 				 this.getFuel(), this.getColor(), this.getPrice());
 	}
 }
