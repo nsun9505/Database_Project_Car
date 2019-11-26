@@ -86,12 +86,21 @@ public class Pagination {
 	public boolean prevPage() {
 		if(this.curPage == 1)
 			return false;
+		
+		
+		if(this.getCurPage() == this.getTotalPage()) {
+			this.setLastIdx(this.getStartIdx());
+		} else {
+			this.setLastIdx(this.getLastIdx() - this.getPageSize());
+		}
+		
 		this.setCurPage(this.getCurPage() - 1);
-		this.setLastIdx(this.getLastIdx() - this.getPageSize());
+		
 		if(this.getCurPage() == 1) {
-			this.setStartIdx(1);
-		} else
+			this.setStartIdx(0);
+		} else {
 			this.setStartIdx(this.getStartIdx() - this.getPageSize());
+		}
 		return true;
 	}
 }

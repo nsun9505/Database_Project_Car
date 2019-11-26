@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import vehicle.VehicleDAO;
+
 public class adminModeDAO {
-	private String openVehicleQuery = "delete from order_list where registration_number = ?";
-	private String notOpenVehicleQuery = "insert into order_list values(?, ?, null, sysdate)";
+	private String openVehicleQuery = "delete from order_list where registration_number = ? AND buyer_id ='admin'";
+	private String notOpenVehicleQuery = "insert into order_list values(?, ?, 'admin', sysdate)";
 	private static final String regExpCarNum = "^[0-9]{2}[A-Z]{2}[0-9]{4}$";
 	private static final String regExpModelYear = "^(19[8-9][0-9]|20[0-1][0-9])-(0[0-9]|1[0-2])$";
 	private static final String regExpLocation = "^[A-Z]{1}[a-z]{1,19}$";
@@ -36,6 +38,7 @@ public class adminModeDAO {
 		connDB();
 	}
 	
+	// commit OK
 	public void updateVehicle() {
 		Scanner sc = new Scanner(System.in);
 		HashMap<String, Boolean> flag = new HashMap<String, Boolean>();
@@ -228,7 +231,8 @@ public class adminModeDAO {
 		
 	}
 	
-	public void insertVehicle() {
+	// commit OK
+	public void insertVehicle(String id) {
 		int regNum;
 		String make;
 		String detailed_model_name;
@@ -319,7 +323,7 @@ public class adminModeDAO {
 		
 		try {
 			String insertVehicleQuery = "insert into vehicle values('"+car_number+"',registration_seq.nextVal,"+price+","+mileage +","+
-					"TO_DATE('"+model_year+"','yyyy-mm')" + ",'"+location+"',"+engine_displacement+",'"+detailed_model_name+"','"+color+"','"+transmission+"','"+fuel+"')";
+					"TO_DATE('"+model_year+"','yyyy-mm')" + ",'"+location+"',"+engine_displacement+",'"+detailed_model_name+"','"+color+"','"+transmission+"','"+fuel+"','"+id+"')";
 
 			pstmt = con.prepareStatement(insertVehicleQuery);
 			/*pstmt.setString(1, car_number);
@@ -339,7 +343,6 @@ public class adminModeDAO {
 			if(res ==1)
 				System.out.println("매물 등록 성공");
 			con.commit();
-			
 		} catch (SQLException e) {
 			System.err.println("sql error : "+e.getMessage());
 		}
@@ -414,28 +417,36 @@ public class adminModeDAO {
 			return null;
 		}
 		
-		
-		
 		return modelyear;
 	}
 
 	private int getMileage(Scanner sc, String message) {
 		int mileage=0;
 		
-		System.out.print(message);
-		
-		mileage=sc.nextInt();
-		sc.nextLine();
+		while(true) {
+			System.out.print(message);
+			mileage=sc.nextInt();
+			sc.nextLine();
+			if(mileage < 0)
+				System.out.println("주행거리는 음수가 될 수 없습니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		return mileage;
 	}
 	
 	private int getPrice(Scanner sc, String message) {
 		int price=0;
 		
-		System.out.print(message);
-		
-		price=sc.nextInt();
-		sc.nextLine();
+		while(true) {
+			System.out.print(message);
+			price=sc.nextInt();
+			sc.nextLine();
+			if(price < 0)
+				System.out.println("가격은 음수가 될 수 없습니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		return price;
 	}
 	
@@ -523,12 +534,17 @@ public class adminModeDAO {
 			System.out.println((i+1)+"."+list.get(i));
 		}
 		
-		System.out.print(message);
-		num = sc.nextInt();
-		sc.nextLine();
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		
 		make = list.get(num-1);
-		
 		return make;
 	}
 	
@@ -560,9 +576,17 @@ public class adminModeDAO {
 			System.out.println((i+1)+"."+list.get(i));
 		}
 		
-		System.out.print(message);
-		int num = sc.nextInt();
-		sc.nextLine();
+		int num = 0;
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
+		
 		modelname = list.get(num-1);
 		
 		
@@ -620,10 +644,17 @@ public class adminModeDAO {
 		for(int i=0;i<list.size();i++) {
 			System.out.println((i+1)+"."+list.get(i));
 		}
+		int num = 0;
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		
-		System.out.print(message);
-		int num = sc.nextInt();
-		sc.nextLine();
 		detailedmodel = list.get(num-1);
 		
 		return detailedmodel;
@@ -658,9 +689,17 @@ public class adminModeDAO {
 			System.out.println((i+1)+"."+list.get(i));
 		}
 		
-		System.out.print(message);
-		int num = sc.nextInt();
-		sc.nextLine();
+		int num = 0;
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
+		
 		engine = Integer.parseInt(list.get(num-1));
 		
 		return engine;
@@ -694,10 +733,17 @@ public class adminModeDAO {
 		for(int i=0;i<list.size();i++) {
 			System.out.println((i+1)+"."+list.get(i));
 		}
+		int num = 0;
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		
-		System.out.print(message);
-		int num = sc.nextInt();
-		sc.nextLine();
 		color = list.get(num-1);
 		
 		return color;
@@ -732,9 +778,16 @@ public class adminModeDAO {
 			System.out.println((i+1)+"."+list.get(i));
 		}
 		
-		System.out.print(message);
-		int num = sc.nextInt();
-		sc.nextLine();
+		int num = 0;
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		trans = list.get(num-1);
 		
 		return trans;
@@ -769,32 +822,87 @@ public class adminModeDAO {
 			System.out.println((i+1)+"."+list.get(i));
 		}
 		
-		System.out.print(message);
-		int num = sc.nextInt();
-		sc.nextLine();
+		int num = 0;
+		while(true) {
+			System.out.print(message);
+			num = sc.nextInt();
+			sc.nextLine();
+			if(num < 1 || num > list.size())
+				System.out.println("유효한 값의 범위가 아닙니다. 다시 입력 부탁드립니다.");
+			else
+				break;
+		}
 		fuel = list.get(num-1);
 		
 		return fuel;
 	}
 	
-	public void openVehicle(int regNum) {
+	// commit 추가 OK
+	public void openVehicle() {
 		int ret = 0;
+		int regNum;
+		while (true) {
+			try {
+				Scanner sc = new Scanner(System.in);
+				System.out.print("공개 처리할 등록번호 입력 : ");
+				String sel = sc.nextLine();
+				regNum = Integer.parseInt(sel);
+				if(regNum > 0)
+					break;
+				else
+					System.out.println("양수를 입력해주세요.");
+			} catch (NumberFormatException e) {
+				System.out.println("숫자만 입력해주세요.");
+			}
+		}
 		try {
 			pstmt = con.prepareStatement(openVehicleQuery);
 			pstmt.setInt(1, regNum);
 			ret = pstmt.executeUpdate();
+			if(ret > 0)
+				System.out.println(regNum+"번이 공개 처리 되었습니다.");
+			else if( ret == 0)
+				System.out.println("공개 처리 실패");
+			con.commit();
 		}catch(SQLException e) {
 			System.err.println("[openVehicle] sql error : " + e.getMessage());
 		}
 	}
 	
-	public void notOpenVehicle(int regNum, String id) {
+	// commit 추가 OK
+	public void notOpenVehicle(String id) {
 		int ret = 0;
+		int regNum;
+		ResultSet rs = null;
+		while (true) {
+			try {
+				Scanner sc = new Scanner(System.in);
+				System.out.print("비공개 처리할 등록번호 입력 : ");
+				String sel = sc.nextLine();
+				regNum = Integer.parseInt(sel);
+				if(regNum > 0)
+					break;
+				else
+					System.out.println("양수를 입력해주세요.");
+			} catch (NumberFormatException e) {
+				System.out.println("숫자만 입력해주세요.");
+			}
+		}
+		
+		VehicleDAO VDao = new VehicleDAO();
+		if(VDao.getVehicleInfoByRegNum(regNum) == null) {
+			System.out.println("현재 판매중인 차량이 아닙니다.");
+			return;
+		}
+		
 		try {
 			pstmt = con.prepareStatement(notOpenVehicleQuery);
 			pstmt.setInt(1, regNum);
 			pstmt.setString(2, id);
 			ret = pstmt.executeUpdate();
+			if(ret > 0)
+				System.out.println(regNum+"번이 비공개 처리 되었습니다.");
+			con.commit();
 		}catch(SQLException e) {
 			System.err.println("[openVehicle] sql error : " + e.getMessage());
 		}

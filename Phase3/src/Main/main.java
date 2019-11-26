@@ -47,9 +47,6 @@ public class main {
 			}
 			VehicleDAO.clearScreen();
 		}
-		// 조건 검색 기능 추가 중 19.11.22
-		// conditionSearch(new VehicleDAO(), id);
-		
 	}
 	
 	
@@ -68,11 +65,11 @@ public class main {
 				if(modifyAccountInfo(id, name, type) == false)
 					return;
 			}else if(sel.equals("2")) {
-				searchVehicle(id);
+				searchVehicle(id, type);
 			}else if(sel.equals("3")) {
 				seeAllOrderList();
 			}else if(sel.equals("4")) {
-				RegisterAndModifyVehicle();
+				RegisterAndModifyVehicle(id);
 			}else if(sel.equals("5")) {
 				System.out.println(id+"님 안녕히가세요.");
 				break;
@@ -85,10 +82,28 @@ public class main {
 
 	private static void seeAllOrderList() {
 		OrderListDAO dao = new OrderListDAO();
-		dao.printAllOrderlist();
+	      Scanner sc = new Scanner(System.in);
+	      
+	      while(true) {
+	         System.out.println("1. 전체 거래내역 확인");
+	         System.out.println("2. 매출액 확인");
+	         System.out.println("3. 나가기");
+	         System.out.print("선택 : ");
+	         String sel = sc.nextLine();
+	         
+	         if(sel.equals("1")) {
+	            dao.printAllOrderlist();
+	         }else if(sel.equals("2")) {
+	            dao.getCostSum();
+	         }else if(sel.equals("3")) {
+	            break;
+	         }else {
+	            System.out.println("올바르지 않은 입력입니다. 다시 입력 부탁드립니다.");
+	         }
+	      }
 	}
 
-	private static void RegisterAndModifyVehicle() {
+	private static void RegisterAndModifyVehicle(String id) {
 		adminModeDAO dao = new adminModeDAO();
 		Scanner sc = new Scanner(System.in);
 		while(true) {
@@ -100,11 +115,11 @@ public class main {
 			String sel = sc.nextLine();
 			
 			if(sel.equals("1")){
-				dao.insertVehicle();
+				dao.insertVehicle(id);
 			} else if(sel.equals("2")) {
 				dao.updateVehicle();
 			} else if(sel.equals("3")) {
-				//
+				secretVehicle(id);
 			} else if(sel.equals("4")) {
 				break;
 			} else{
@@ -112,6 +127,28 @@ public class main {
 			}
 		}
 	}
+
+	private static void secretVehicle(String id) {
+		Scanner sc = new Scanner(System.in);
+		adminModeDAO dao = new adminModeDAO();
+		while(true) {
+			System.out.println("1. 매물 공개");
+			System.out.println("2. 매물 비공개");
+			System.out.println("3. 나가기");
+			String sel = sc.nextLine();
+			
+			if(sel.equals("1")) {
+				dao.openVehicle();
+			} else if(sel.equals("2")) {
+				dao.notOpenVehicle(id);
+			} else if(sel.equals("3")){
+				break;
+			} else {
+				System.out.println("올바르지 않은 입력입니다. 다시 입력 부탁드립니다.");
+			}
+		}
+	}
+
 
 	private static void CustomerMenu(String id, String name, String type) {
 		Scanner sc = new Scanner(System.in);
@@ -127,7 +164,7 @@ public class main {
 				if(modifyAccountInfo(id, name, type) == false)
 					return;
 			}else if(sel.equals("2")) {
-				searchVehicle(id);
+				searchVehicle(id, type);
 			}else if(sel.equals("3")) {
 				seeMyOrderList(id);
 			}else if(sel.equals("4")) {
@@ -145,8 +182,8 @@ public class main {
 		dao.printMyOrderlist(id);
 	}
 
-	private static void searchVehicle(String id) {
-		VehicleDAO.conditionSearch(id);
+	private static void searchVehicle(String id, String account_type) {
+		VehicleDAO.conditionSearch(id, account_type);
 	}
 
 	private static boolean modifyAccountInfo(String id, String name, String type) {

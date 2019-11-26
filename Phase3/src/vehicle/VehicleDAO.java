@@ -29,6 +29,19 @@ public class VehicleDAO {
 	public VehicleDAO() {
 		connDB();
 	}
+	
+	// commit 추가
+	public void updateSellerId(String id) {
+		int ret = 0;
+		try {
+			pstmt = con.prepareStatement("update vehicle set seller_id='admin' where seller_id=?");
+			pstmt.setString(1, id);
+			ret = pstmt.executeUpdate();
+			con.commit();
+		}catch(SQLException e) {
+			System.err.println("");
+		}
+	}
 
 	public ArrayList<String> getTableColumnMetaData(String table_name) {
 		ArrayList<String> metadata = new ArrayList<String>();
@@ -54,11 +67,13 @@ public class VehicleDAO {
 		return metadata;
 	}
 	
+	// commit 추가 OK
 	public void deleteVehicle(int regNum) {
 		try {
 			pstmt = con.prepareStatement("delete from vehicle where registration_number=?");
 			pstmt.setInt(1, regNum);
 			int ret = pstmt.executeUpdate();
+			con.commit();
 		}catch(SQLException e) {
 			System.err.println("[deleteVehicle] sql error : "+e.getMessage());
 		}
@@ -110,7 +125,7 @@ public class VehicleDAO {
 		if (whereClusure != null)
 			query += "AND " + whereClusure;
 		query += " order by registration_number desc";
-		System.out.println(query);
+//		System.out.println(query);
 		try {
 			pstmt = con.prepareStatement(query);
 			rs = pstmt.executeQuery();
@@ -255,7 +270,7 @@ public class VehicleDAO {
 
 	public DetailVehicleInfoDTO getVehicleInfoByRegNum(int regNum) {
 		DetailVehicleInfoDTO ret = null;
-		String query = "select * from ALL_VEHICLE_INFO where registration_number=?";
+		String query = "select * from ALL_VEHICLE_INFO where registration_number=? AND registration_number not in (select registration_number from order_list)";
 		ResultSet rs = null;
 
 		try {
@@ -266,7 +281,7 @@ public class VehicleDAO {
 			if (rs.next())
 				ret = new DetailVehicleInfoDTO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),
 						rs.getString(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getDate(9), rs.getString(10),
-						rs.getInt(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15));
+						rs.getInt(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15), rs.getString("seller_id"));
 			else
 				ret = null;
 		} catch (SQLException e) {
@@ -330,6 +345,7 @@ public class VehicleDAO {
 		return list;
 	}
 
+	// commit 완료
 	public void buyVehicle(String buyerId, int regNum) {
 		int ret = 0;
 		try {
@@ -345,7 +361,7 @@ public class VehicleDAO {
 		}
 	}
 	
-	public static void conditionSearch(String id) {
+	public static void conditionSearch(String id, String account_type) {
 		boolean isUpdateCondition = true;
 		Scanner sc = new Scanner(System.in);
 		VehicleDAO VDao = new VehicleDAO();
@@ -357,7 +373,6 @@ public class VehicleDAO {
 		while (true) {
 			if(isUpdateCondition) {
 				String whereClusure = getWhereClusureByColumn(conditions, "all");
-				System.out.println(whereClusure);
 				vehicleList = VDao.getBasicVehicleInfoByQuery(whereClusure, columnNames);
 				page = new Pagination(vehicleList.size());
 			}
@@ -373,6 +388,7 @@ public class VehicleDAO {
 				}
 			}else
 				System.out.println("해당 조건에 맞는 매물이 없습니다.");
+			
 			System.out.print("1. 차종 선택\t\t\t");
 			System.out.print("2. 제조사/모델/세부모델 선택\t\t");
 			System.out.print("3. 연식 선택\t\t\t");
@@ -388,7 +404,7 @@ public class VehicleDAO {
 			System.out.println("exit. 나가기\t\t\t>.다음페이지\t\t\t<.이전 페이지");
 			System.out.println("[현재 선택된 조건]");
 			printCurrentCondition(conditions);
-			System.out.print("입력 : ");
+			System.out.print("선택 : ");
 			String sel = sc.nextLine();
 			
 			if (sel.equals("1")) {
@@ -440,7 +456,7 @@ public class VehicleDAO {
 				// 등록번호로 검색된 차량 세부 정보 보기
 				DetailVehicleInfoDTO dto = searchVehicleByRegNum(VDao);
 				if (dto != null) {
-					isUpdateCondition = decidePurchase(dto, VDao, id);
+					isUpdateCondition = decidePurchase(dto, VDao, id, account_type);
 					if(isUpdateCondition == true) {
 						ArrayList<String> keys = new ArrayList<String>(); 
 						for(String key : conditions.keySet())
@@ -480,7 +496,7 @@ public class VehicleDAO {
 		for (String key : conditions.keySet())
 			System.out.println(key + " : "+conditions.get(key).toString()+ " ");	
 	}
-	private static boolean decidePurchase(DetailVehicleInfoDTO dto, VehicleDAO VDao, String buyerId) {
+	private static boolean decidePurchase(DetailVehicleInfoDTO dto, VehicleDAO VDao, String buyerId, String user_type) {
 		Scanner sc = new Scanner(System.in);
 		boolean isUpdateCondition = false;
 		while (true) {
@@ -489,6 +505,10 @@ public class VehicleDAO {
 			System.out.print("선택 : ");
 			String sel = sc.nextLine();
 			if (sel.equals("1")) {
+				if(user_type.equals("A")) {
+					System.out.println("관리자 계정으로는 구매할 수 없습니다.");
+					return false;
+				}
 				if(getAnswerYesOrNo("정말로 구매하시겠습니까?(Y/N)", sc) == true) {
 					VDao.buyVehicle(buyerId, dto.getRegNum());
 					isUpdateCondition = true;

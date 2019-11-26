@@ -10,11 +10,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class OrderListDAO {
-	private String getRegNumbersByBuyerIdQuery = "select registration_number from order_list where buyer_id=?";
+	private String getRegNumbersByIdQuery = "select registration_number from order_list ";
 	private String getMyOrderListQuery = "";
 	private String getAllOrderListQuery = "select * from order_list where buyer_id is not null";
 	private static final String getTableColumnNamesQuery = "select cname from col where tname=?";
-	
 	private String url = "jdbc:oracle:thin:@localhost:1600:xe";
 	private String user = "knu";
 	private String pw = "comp322";
@@ -65,110 +64,154 @@ public class OrderListDAO {
 		}
 	}
 	
+	// commit 추가
 	public void deleteOrderListByBuyerId(String buyer_id) {
 		try {
 			pstmt = con.prepareStatement("delete from order_list where buyer_id=?");
 			pstmt.setString(1, buyer_id);
 			int ret = pstmt.executeUpdate();
+			con.commit();
 		}catch(SQLException e) {
 			System.err.println("[deleteOrderListByRegNum] sql error : " + e.getMessage());
 		}
 	}
 	
-	public ArrayList<Integer> getRegNumsByBuyerId(String buyer_id) {
+	public ArrayList<Integer> getRegNumsById(String id, String account_type) {
 		ArrayList<Integer> regnums = new ArrayList<Integer>();
 		ResultSet rs = null;
+		if(account_type.equals("C"))
+			getRegNumbersByIdQuery += " where buyer_id=?";
+		else
+			getRegNumbersByIdQuery += " where seller_id=?";
 		try {
-			pstmt = con.prepareStatement(getRegNumbersByBuyerIdQuery);
-			pstmt.setString(1, buyer_id);
+			pstmt = con.prepareStatement(getRegNumbersByIdQuery);
+			pstmt.setString(1, id);
 			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				
-			}
+			while(rs.next()) 
+				regnums.add(rs.getInt(1));
 		}catch(SQLException e) {
 			System.err.println("[getRegNumsByBuyerId] sql error : " + e.getMessage());
 		}
 		return regnums;
 	}
 	
+	// commit 추가
+	public void updateSellerId(String id) {
+		int ret = 0;
+		try {
+			pstmt = con.prepareStatement("update order_list set seller_id='admin' where seller_id=?");
+			pstmt.setString(1, id);
+			ret = pstmt.executeUpdate();
+			con.commit();
+		}catch(SQLException e) {
+			System.err.println("");
+		}
+	}
+		
 	public void getCostSum() {
 		Scanner sc = new Scanner(System.in);
-		while(true) {
-			System.out.println("1. 연,월 별 매출액 확인\n2.제조사별 매출액 확인\n3. 나가기");
-			System.out.print("선택 : ");
-			String sel = sc.nextLine();
-			String year="";
-			String make="";
-			String month="";
-			if(sel.equals("1")) {
-				System.out.println("연도만 검색할 시 월에 0 입력");
-				System.out.print("연도 : ");
-				year = sc.nextLine();
-				System.out.print("월 : ");
-				month = sc.nextLine();
-				if(Integer.parseInt(month)>0&&Integer.parseInt(month)<10)
-					month="0"+month;
-				if(month.equals("0")&&year.equals("0")) {
-					System.out.println("잘못 입력하셨습니다.");
-					continue;
-				}
-				else if(month.equals("0")){
-					long sum = getCostSum(year, month, make, 1);
-					System.out.println(year+"년 매출액 : "+sum+"원");
-					
-				}
-				else {
-					long sum = getCostSum(year, month, make, 2);
-					System.out.println(year+"년 "+month+"월 매출액 : "+sum+"원");
-				}
-			}
-			else if(sel.equals("2")){
-				System.out.println("제조사 선택");
-				System.out.println("1. Hyundai");
-				System.out.println("2. Kia");
-				System.out.println("3. Renaultsamsung");
-				System.out.println("4. Chevrolet");
-				System.out.println("5. Mercedes_Benz");
-				System.out.println("6. Audi");
-				System.out.println("7. Bmw");
-				System.out.println("8. Volkswagen");
-				System.out.print("선택 : ");
-				int makenum = sc.nextInt();
-				switch(makenum) {
-				case 1:make = "Hyundai"; break;
-				case 2:make = "Kia"; break;
-				case 3:make = "Renaultsamsung"; break;
-				case 4:make = "Chevrolet"; break;
-				case 5:make = "Mercedes_Benz"; break;
-				case 6:make = "Audi"; break;
-				case 7:make = "Bmw"; break;
-				case 8:make = "Volkswagen"; break;
-				}
-				sc.nextLine();
-				System.out.println("제조사별 총매출액 검색 시 연도와 월 모두 0입력 \n연도만 검색할 시 월에 0 입력");
-				System.out.print("연도 : ");
-				year = sc.nextLine();
-				System.out.print("월 : ");
-				month = sc.nextLine();
-				if(Integer.parseInt(month)>0&&Integer.parseInt(month)<10)
-					month="0"+month;
-				if(month.equals("0")&&year.equals("0")) {
-					long sum = getCostSum(year, month, make, 6);
-					System.out.println("총 매출액 : "+sum+"원");
-				}
-				else if(month.equals("0")){
-					long sum = getCostSum(year, month, make, 4);
-					System.out.println(year+"년 매출액 : "+sum+"원");
-				}
-				else {
-					long sum = getCostSum(year, month, make, 5);
-					System.out.println(year+"년 "+month+"월 매출액 : "+sum+"원");
-				}
-			}
-			else {
-				break;
-			}
-		}
+	      while(true) {
+	         System.out.println("1.연,월 별 매출액 확인\n2.제조사별 매출액 확인\n3. 나가기");
+	         System.out.print("선택 : ");
+	         String sel = sc.nextLine();
+	         String year="";
+	         String make="";
+	         String month="";
+	         int tempmonth=0;
+	         int tempyear=0;
+	         if(sel.equals("1")) {
+	            System.out.println("연도만 검색할 시 월에  0 입력");
+	            
+	            System.out.print("연도 : ");
+	            tempyear = sc.nextInt();
+	            sc.nextLine();
+	            if(tempyear<0){
+	               System.out.println("잘못 입력하셨습니다.");
+	               continue;
+	            }
+	            year = Integer.toString(tempyear);
+	            
+	            System.out.print("월 (1~12입력): ");
+	            tempmonth = sc.nextInt();
+	            sc.nextLine();
+	            //month = sc.nextLine();
+	            month = Integer.toString(tempmonth);
+	            
+	            if(tempmonth>0&&tempmonth<10)
+	               month="0"+month;
+	            
+	            if(month.equals("0")&&year.equals("0")) {
+	               System.out.println("잘못 입력하셨습니다.");
+	               continue;
+	            }
+	            else if(month.equals("0")){
+	               long sum = getCostSum(year, month, make, 1);
+	               System.out.println(year+"년 매출액 : "+sum+"원");
+	               
+	            }
+	            else {
+	               long sum = getCostSum(year, month, make, 2);
+	               System.out.println(year+"년 "+month+"월 매출액 : "+sum+"원");
+	            }
+	         }
+	         else if(sel.equals("2")){
+	            System.out.println("제조사 선택");
+	            System.out.println("1. Hyundai");
+	            System.out.println("2. Kia");
+	            System.out.println("3. Renaultsamsung");
+	            System.out.println("4. Chevrolet");
+	            System.out.println("5. Mercedes_Benz");
+	            System.out.println("6. Audi");
+	            System.out.println("7. Bmw");
+	            System.out.println("8. Volkswagen");
+	            System.out.print("선택 : ");
+	            int makenum = sc.nextInt();
+	            switch(makenum) {
+	            case 1:make = "Hyundai"; break;
+	            case 2:make = "Kia"; break;
+	            case 3:make = "Renaultsamsung"; break;
+	            case 4:make = "Chevrolet"; break;
+	            case 5:make = "Mercedes_Benz"; break;
+	            case 6:make = "Audi"; break;
+	            case 7:make = "Bmw"; break;
+	            case 8:make = "Volkswagen"; break;
+	            }
+	            sc.nextLine();
+	            System.out.println("제조사별 총매출액 검색 시 연도와 월 모두 0입력 \n연도만 검색할 시 월에 0 입력");
+	            System.out.print("연도 : ");
+	            tempyear = sc.nextInt();
+	            sc.nextLine();
+	            if(tempyear<0){
+	               System.out.println("잘못 입력하셨습니다.");
+	               continue;
+	            }
+	            year = Integer.toString(tempyear);
+	            
+	            System.out.print("월 (1~12입력): ");
+	            tempmonth = sc.nextInt();
+	            sc.nextLine();
+	            //month = sc.nextLine();
+	            month = Integer.toString(tempmonth);
+	            
+	            if(tempmonth>0&&tempmonth<10)
+	               month="0"+month;
+	            if(month.equals("0")&&year.equals("0")) {
+	               long sum = getCostSum(year, month, make, 6);
+	               System.out.println("총 매출액 : "+sum+"원");
+	            }
+	            else if(month.equals("0")){
+	               long sum = getCostSum(year, month, make, 4);
+	               System.out.println(year+"년 매출액 : "+sum+"원");
+	            }
+	            else {
+	               long sum = getCostSum(year, month, make, 5);
+	               System.out.println(year+"년 "+month+"월 매출액 : "+sum+"원");
+	            }
+	         }
+	         else {
+	            break;
+	         }
+	      }
 	}
 	
 	public OrderListDAO() {
@@ -354,5 +397,4 @@ public class OrderListDAO {
 		pstmt.close();
 		con.close();
 	}
-
 }

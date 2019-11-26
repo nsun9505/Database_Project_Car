@@ -10,10 +10,11 @@ public class DetailVehicleInfoDTO extends BasicVehicleInfoDTO{
 	private String car_number;
 	private String model_name;
 	private String country;
+	private String sellerId;
 	
 	public DetailVehicleInfoDTO(String make, String country, String model_name, String category, String car_number,
 			int regNum, int price, int mileage, Date model_year, String location, int engine_displacement, 
-			String detailed_model_name, String color, String transmission, String fuel) {
+			String detailed_model_name, String color, String transmission, String fuel, String sellerId) {
 		super(regNum, make, detailed_model_name, model_year, price, mileage, location, fuel, color);
 		this.category = category;
 		this.engine_displacement = engine_displacement;
@@ -21,6 +22,7 @@ public class DetailVehicleInfoDTO extends BasicVehicleInfoDTO{
 		this.car_number = car_number;
 		this.model_name = model_name;
 		this.country = country;
+		this.setSellerId(sellerId);
 	}
 
 	public String getCategory() {
@@ -71,6 +73,14 @@ public class DetailVehicleInfoDTO extends BasicVehicleInfoDTO{
 		this.country = country;
 	}
 
+	public String getSellerId() {
+		return sellerId;
+	}
+
+	public void setSellerId(String sellerId) {
+		this.sellerId = sellerId;
+	}
+
 	public void printInfo() {
 		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM");
 		String model_year = sdfDate.format(this.getModel_year());
@@ -85,6 +95,7 @@ public class DetailVehicleInfoDTO extends BasicVehicleInfoDTO{
 		System.out.println("연료 : "+this.getFuel());
 		System.out.println("변속기 : "+this.getTransmission());
 		System.out.println("색상 : " +this.getColor());
-		System.out.println("겨각 : "+this.getPrice()+" 원");
+		System.out.println("가격 : "+this.getPrice()+" 원");
+		System.out.println("판매자 : "+this.getSellerId());
 	}
 }

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -36,22 +37,19 @@ public class AccountDAO {
 	private PreparedStatement pstmt;
 	private Statement stmt;
 
-/*	//Test Ok
-	public static void main(String[] args) {
-
-		String id = null, pw = null;
-		AccountDAO dao = new AccountDAO();
-		dao.joinAccount();									// 회원가입
-		dao.login(id, pw);									// 로그인
-		dao.modifyAccountInfo("nsun9505");					// 회원 정보 수정 + 비밀번호 변경
-		dao.withdrawalAccount("nsun9505", "남상윤", "A");		// 회원 탈퇴 
-	}
-*/
+	/*
+	 * //Test Ok public static void main(String[] args) {
+	 * 
+	 * String id = null, pw = null; AccountDAO dao = new AccountDAO();
+	 * dao.joinAccount(); // 회원가입 dao.login(id, pw); // 로그인
+	 * dao.modifyAccountInfo("nsun9505"); // 회원 정보 수정 + 비밀번호 변경
+	 * dao.withdrawalAccount("nsun9505", "남상윤", "A"); // 회원 탈퇴 }
+	 */
 	public AccountDAO() {
 		connDB();
 	}
 
-	// 일반 고객 회원 가입 & 관리자 인증 후 관리자 가입 가능
+	// 일반 고객 회원 가입 & 관리자 인증 후 관리자 가입 가능, commit ok
 	public void joinAccount() {
 		Scanner sc = new Scanner(System.in);
 		String account_type = "C";
@@ -105,23 +103,23 @@ public class AccountDAO {
 
 		String id = getInputId(sc);
 		String pw, name, phone_num;
-		while(true) {
+		while (true) {
 			pw = getInputPasswd(sc, "비밀번호 입력  : ");
-			if(pw != null)
+			if (pw != null)
 				break;
 		}
-		while(true) {
+		while (true) {
 			name = getInputName(sc, "이름 입력[필수정보] : ");
-			if(name != null)
+			if (name != null)
 				break;
 		}
-		while(true) {
+		while (true) {
 			phone_num = getInputPhoneNumber(sc, "핸드폰 번호 입력[필수정보] : ");
-			if(phone_num != null)
+			if (phone_num != null)
 				break;
 		}
 		System.out.println("아래 정보들은 필수 정보가 아닙니다. EnterKey를 눌러 스킵할 수 있습니다.");
- 		String address = getInputAddress(sc, "주소 입려[필수아님] : ");
+		String address = getInputAddress(sc, "주소 입려[필수아님] : ");
 		String birth_date = getInputBirthDate(sc, "생년월일 입려[필수아님] : ");
 		String sex = getInputSex(sc, "성별 입려[필수아님] : ");
 		String job = getInputJob(sc, "직업 입려[필수아님] : ");
@@ -164,7 +162,7 @@ public class AccountDAO {
 		}
 	}
 
-	// 회원 정보 수정
+	// 회원 정보 수정, commit ok
 	public void modifyAccountInfo(String id) {
 		Scanner sc = new Scanner(System.in);
 		HashMap<String, Boolean> flags = new HashMap<String, Boolean>();
@@ -174,9 +172,9 @@ public class AccountDAO {
 		AccountDTO dto = getAccountInfoById(id);
 		if (dto == null) {
 			System.out.println("비밀 번호가 틀립니다. 회원 정보 수정을 종료합니다.");
-			return;	
+			return;
 		}
-		
+
 		flags.put("password", false);
 		flags.put("name", false);
 		flags.put("phone_number", false);
@@ -184,7 +182,7 @@ public class AccountDAO {
 		flags.put("birth_date", false);
 		flags.put("sex", false);
 		flags.put("job", false);
-		
+
 		while (true) {
 			System.out.println("<<회원 정보 수정 항목 선택>>");
 			System.out.println("1. 아이디[수정불가] : " + dto.getId());
@@ -192,7 +190,8 @@ public class AccountDAO {
 			System.out.println("3. 이름 : " + dto.getName());
 			System.out.println("4. 핸드폰 번호 : " + dto.getPhone_num());
 			System.out.println("5. 주소 : " + (dto.getAddress() == null ? "[입력하지 않음]" : dto.getAddress()));
-			System.out.println("6. 생년월일 : " + (dto.getBirth_date() == null ? "[입력하지 않음]" : dto.getBirth_date().toString()));
+			System.out.println(
+					"6. 생년월일 : " + (dto.getBirth_date() == null ? "[입력하지 않음]" : dto.getBirth_date().toString()));
 			System.out.println("7. 성별 : " + (dto.getSex() == null ? "[입력하지 않음]" : dto.getSex()));
 			System.out.println("8. 직업 : " + (dto.getJob() == null ? "[입력하지 않음]" : dto.getJob()));
 			System.out.println("9. 수정  내용 저장 후 종료");
@@ -231,7 +230,7 @@ public class AccountDAO {
 					dto.setAddress(address);
 				} else {
 					flag = decisionNullInput("address", dto, sc);
-					if(flag && flag != flags.get("address"))
+					if (flag && flag != flags.get("address"))
 						flags.replace("address", flag);
 				}
 				break;
@@ -242,7 +241,7 @@ public class AccountDAO {
 					dto.setBirth_date(Date.valueOf(bDate));
 				} else {
 					flag = decisionNullInput("birth_date", dto, sc);
-					if(flag && flag != flags.get("birth_date"))
+					if (flag && flag != flags.get("birth_date"))
 						flags.replace("birth_date", flag);
 				}
 				break;
@@ -253,7 +252,7 @@ public class AccountDAO {
 					dto.setSex(sex);
 				} else {
 					flag = decisionNullInput("sex", dto, sc);
-					if(flag && flag != flags.get("sex"))
+					if (flag && flag != flags.get("sex"))
 						flags.replace("sex", flag);
 				}
 				break;
@@ -264,14 +263,14 @@ public class AccountDAO {
 					dto.setJob(job);
 				} else {
 					flag = decisionNullInput("job", dto, sc);
-					if(flag && flag != flags.get("job"))
+					if (flag && flag != flags.get("job"))
 						flags.replace("job", flag);
 
 				}
 				break;
 			case "9":
-				for(String key : flags.keySet()) {
-					if(flags.get(key) == true) {
+				for (String key : flags.keySet()) {
+					if (flags.get(key) == true) {
 						try {
 							pstmt = con.prepareStatement(modifyAccountInfoQuery);
 							pstmt.setString(1, dto.getPw());
@@ -315,7 +314,7 @@ public class AccountDAO {
 			}
 		}
 	}
-	
+
 	// 로그인 기능 구현
 	public AccountDTO login() {
 		Scanner sc = new Scanner(System.in);
@@ -327,89 +326,96 @@ public class AccountDAO {
 			id = sc.nextLine();
 			System.out.print("비밀번호 : ");
 			pw = sc.nextLine();
-			System.out.println(id + " " + pw);
+//			System.out.println(id + " " + pw);
 //			if(validCheck(id, regExpId) == false || validCheck(pw, regExpPw) == false) {
 //				System.out.println("[로그인 실패] 가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.");
 //				return null;
 //			}
-			
+
 			pstmt = con.prepareStatement(isExistAccountQuery);
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			ResultSet rs = pstmt.executeQuery();
-			if(rs.next()) {
+			if (rs.next()) {
 				dto = new AccountDTO(rs.getString(1), rs.getString(2), rs.getString(3));
-				System.out.println("[로그인 성공] "+ dto.getName() + "님 환영합니다!");
-			}
-			else {
+				System.out.println("[로그인 성공] " + dto.getName() + "님 환영합니다!");
+			} else {
 				System.out.println("[로그인 실패] 가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.");
 			}
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
 		}
 		return dto;
 	}
-	
-	// 회원탈퇴 기능 구현 완료
+
+	// 회원탈퇴 기능 구현 완료, commit ok
 	public boolean withdrawalAccount(String id, String name, String account_type) {
 		Scanner sc = new Scanner(System.in);
 		try {
-			if(account_type.equals("A")) {
+			if (account_type.equals("A")) {
+				if(id.equals("admin")) {
+					System.out.println("admin 계정은 탈퇴할 수 없습니다.");
+					return true;
+				}
 				stmt = con.createStatement();
 				ResultSet rs = stmt.executeQuery("select count(*) from account where account_type='A'");
 				rs.next();
 				int numOfAdmin = rs.getInt(1);
-				
+
 				rs.close();
 				stmt.close();
-				if(numOfAdmin <= 1) {
-					System.out.println("관리자 계정은 최소 1개 이상 있어야 하므로  해당 관리자 계정("+id+")은 탈퇴할 수 없습니다.");
+				if (numOfAdmin <= 1) {
+					System.out.println("관리자 계정은 최소 1개 이상 있어야 하므로  해당 관리자 계정(" + id + ")은 탈퇴할 수 없습니다.");
 					return true;
 				}
 			}
-			
+
 			System.out.println("<<<회원 탈퇴>>>");
 			System.out.println("회원 탈퇴를 위해 비밀번호를 입력해주세요.");
 			System.out.print("비밀번호 입력 : ");
 			String pw = sc.nextLine();
-/*			
-			if(validCheck(pw, regExpPw) == false) {
-				System.out.println("비밃번호가 틀렸습니다. 이전 화면으로 돌아갑니다.");
-				return true;
-			}
-*/		
+			/*
+			 * if(validCheck(pw, regExpPw) == false) {
+			 * System.out.println("비밃번호가 틀렸습니다. 이전 화면으로 돌아갑니다."); return true; }
+			 */
 			pstmt = con.prepareStatement(isExistAccountQuery);
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			ResultSet rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
-				System.out.println(rs.getString(1)+"님 정말로 회원탈퇴를 하시겠습니까?(Y/N)");
-				if(sc.nextLine().toUpperCase().equals("Y")) {
+
+			if (rs.next()) {
+				System.out.println(rs.getString(1) + "님 정말로 회원탈퇴를 하시겠습니까?(Y/N)");
+				if (sc.nextLine().toUpperCase().equals("Y")) {
 					VehicleDAO VDao = new VehicleDAO();
 					OrderListDAO ODao = new OrderListDAO();
-					int[] regNums = {0};
-					ODao.deleteOrderListByBuyerId(id);
-					for(int i=0; i<regNums.length; i++)
-						VDao.deleteVehicle(regNums[i]);
+					if (account_type.equals("A")) {
+						ODao.updateSellerId(id);
+						VDao.updateSellerId(id);
+					} else {
+						ArrayList<Integer> regNumList = ODao.getRegNumsById(id, account_type);
+						if(regNumList.size() > 0) {
+							ODao.deleteOrderListByBuyerId(id);
+							for (int i = 0; i < regNumList.size(); i++)
+								VDao.deleteVehicle(regNumList.get(i));
+						}
+					}
 					pstmt = con.prepareStatement("delete from account where id = ?");
 					pstmt.setString(1, id);
 					int ret = pstmt.executeUpdate();
-					if(ret == 1)
+					if (ret == 1)
 						System.out.println("회원탈퇴 완료!\n거래내역 정보는  3년간 유지가 된 후에 삭제가 되는 점 유의바랍니다.");
 					con.commit();
 					return false;
-				}
-				else {
+				} else {
 					System.out.println("회원탈퇴 취소");
 					return true;
 				}
-			}else {
+			} else {
 				System.out.println("비밀번호가 틀렸습니다. 이전 화면으로 돌아갑니다.");
 				return true;
 			}
-			
-		}catch(SQLException e) {
+
+		} catch (SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
 		}
 		return true;
@@ -543,7 +549,7 @@ public class AccountDAO {
 			else {
 				System.out.println("성별을 입력하실 경우 F/f(여자), M/m(남자)으로 입력 부탁드립니다.");
 				System.out.print("다시 입력하시겠습니까?(Y/N) : ");
-				if(sc.nextLine().toUpperCase().equals("Y"))
+				if (sc.nextLine().toUpperCase().equals("Y"))
 					continue;
 				else
 					return null;
@@ -574,7 +580,7 @@ public class AccountDAO {
 			if (validCheck(bDate, regExpDate) == false) {
 				System.out.println("년월일(YYYY-MM-DD) 형식을 지켜주십시오.");
 				System.out.print("다시 입력하시겠습니까?(Y/N) : ");
-				if(sc.nextLine().toUpperCase().equals("Y"))
+				if (sc.nextLine().toUpperCase().equals("Y"))
 					continue;
 				else
 					return null;
@@ -617,20 +623,24 @@ public class AccountDAO {
 		}
 		return dto;
 	}
-	
+
 	private boolean decisionNullInput(String param, AccountDTO dto, Scanner sc) {
 		boolean ret = false;
 		while (true) {
 			System.out.println("입력 값이 없습니다. 이대로 적용하시겠습니까?(Y/N) : ");
 			String input = sc.nextLine().toUpperCase();
 			if (input.equals("Y")) {
-				if(param.equals("address")) dto.setAddress(null); 
-				else if(param.equals("birth_date")) dto.setBirth_date(null);
-				else if(param.equals("job")) dto.setJob(null);
-				else if(param.equals("sex")) dto.setSex(null);
+				if (param.equals("address"))
+					dto.setAddress(null);
+				else if (param.equals("birth_date"))
+					dto.setBirth_date(null);
+				else if (param.equals("job"))
+					dto.setJob(null);
+				else if (param.equals("sex"))
+					dto.setSex(null);
 				ret = true;
 				break;
-			} else if(input.equals("N")) {
+			} else if (input.equals("N")) {
 				break;
 			} else {
 				System.out.println("N 또는 Y를 입력하세요.");
