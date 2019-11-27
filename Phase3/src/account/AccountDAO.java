@@ -402,7 +402,7 @@ public class AccountDAO {
 					pstmt.setString(1, id);
 					int ret = pstmt.executeUpdate();
 					if (ret == 1)
-						System.out.println("회원탈퇴 완료!\n거래내역 정보는  3년간 유지가 된 후에 삭제가 되는 점 유의바랍니다.");
+						System.out.println("회원탈퇴 완료!");
 					con.commit();
 					return false;
 				} else {
@@ -531,7 +531,7 @@ public class AccountDAO {
 	private String getInputAddress(Scanner sc, String message) {
 		System.out.print(message);
 		String address = sc.nextLine();
-		if (address == null || address.length() == 0)
+		if (address == null || address.equals(""))
 			return null;
 		return address;
 	}
