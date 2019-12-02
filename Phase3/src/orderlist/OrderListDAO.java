@@ -236,7 +236,7 @@ public class OrderListDAO {
 					sc.nextLine();
 					continue;
 				}
-				if(tempmonth < 1 || tempmonth > 12) {
+				if(tempmonth < 0 || tempmonth > 12) {
 					System.out.println("월은 1~12 사이의 값을 입력해주세요.");
 					continue;
 				}

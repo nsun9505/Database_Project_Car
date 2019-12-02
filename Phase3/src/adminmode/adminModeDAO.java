@@ -160,13 +160,18 @@ public class adminModeDAO {
 				flag.replace("mileage", true);
 				break;
 			case "3":
-				model_year = getModelyear(sc, "연식 입력: ");
-				model_year = model_year + "-01";
-				flag.replace("model_year", true);
+				String temp_model_year = getModelyear(sc, "연식 입력: ");
+				if(temp_model_year != null) {
+					model_year = temp_model_year + "-01";
+					flag.replace("model_year", true);
+				}
 				break;
 			case "4":
-				location = getLocation(sc, "지역 입력: ");
-				flag.replace("location", true);
+				String temp_location = getLocation(sc, "지역 입력 : ");
+				if(temp_location != null) {
+					location = temp_location;
+					flag.replace("location", true);
+				}
 				break;
 			case "5":
 				engine_displacement = getEngine(sc, "배기량 입력: ", detailed_model_name);
@@ -306,8 +311,9 @@ public class adminModeDAO {
 		}
 		while (true) {
 			model_year = getModelyear(sc, "연식 입력: ");
-			if (model_year != null)
+			if (model_year != null) {
 				break;
+			}
 		}
 		while (true) {
 			location = getLocation(sc, "지역 입력: ");
@@ -800,7 +806,7 @@ public class adminModeDAO {
 		} catch (SQLException e) {
 			System.err.println("[getTransmission] sql error " + e.getMessage());
 		} finally {
-			try {
+			try { 
 				rs.close();
 				pstmt.close();
 			} catch (SQLException e) {
