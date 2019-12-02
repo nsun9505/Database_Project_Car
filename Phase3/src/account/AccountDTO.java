@@ -13,6 +13,12 @@ public class AccountDTO {
 	private String job;
 	private String account_type;
 	
+	public AccountDTO(String id, String name, String type) {
+		this.id = id;
+		this.name = name;
+		this.account_type = type;
+	}
+	
 	public AccountDTO(String id, String pw, String name, String phone_num, String addr, Date bDate, String sex, String job, String type) {
 		this.id = id;
 		this.pw = pw;
@@ -23,6 +29,18 @@ public class AccountDTO {
 		this.sex = sex;
 		this.job = job;
 		this.account_type = type;
+	}
+	
+	public AccountDTO(AccountDTO cpDto) {
+		this.id = cpDto.getId();
+		this.pw = cpDto.getPw();
+		this.name = cpDto.getName();
+		this.phone_num = cpDto.getPhone_num();
+		this.address = cpDto.getAddress();
+		this.birth_date = cpDto.getBirth_date();
+		this.sex = cpDto.getSex();
+		this.job = cpDto.getJob();
+		this.account_type = cpDto.getAccount_type();
 	}
 	
 	public String getId() {

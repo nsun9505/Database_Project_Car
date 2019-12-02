@@ -6,85 +6,424 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
+import orderlist.OrderListDAO;
+import vehicle.VehicleDAO;
+
 public class AccountDAO {
-	private String insertAccountQuery = "insert into account values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	private String isExistIdQuery = "select count(id) from account where id = ?";
-	private String url = "jdbc:oracle:thin:@localhost:1600:xe";
-	private String user = "knu";
-	private String pw = "comp322";
+	private static final String insertAccountQuery = "insert into account values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String isExistIdQuery = "select count(id) from account where id = ?";
+	private static final String isExistAdminQeury = "select account_type from account where id = ? AND password = ?";
+	private static final String getAccountInfoQuery = "select * from account where id = ? AND password = ?";
+	private static final String isExistAccountQuery = "select id, name, account_type from account where id = ? AND password = ?";
+	private static final String getNumberOfAdmin = "select count(id) from account where account_type = 'A'";
+	private static final String modifyAccountInfoQuery = "update account set password=?, name=?, phone_number=?, address=?, bDate=?, sex=?, job=? where id=?";
+	private static final String modifyPasswordQuery = "update account set password=? where id=?";
+	private static final String url = "jdbc:oracle:thin:@localhost:1600:xe";
+	private static final String user = "knu";
+	private static final String pw = "comp322";
+	private static final String regExpId = "^[a-zA-Z]{1}[a-zA-Z0-9]{4,14}$";
+	private static final String regExpPw = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z[0-9]$@$!%*#?&]{8,15}$";
+	private static final String regExpName = "^[a-zA-Z]{2,10}\\s[a-zA-Z]{2,10}$";
+	private static final String regExpPhoneNum = "^01(?:0|1[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$";
+	private static final String regExpDate = "^(19[0-9][0-9]|20\\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$";
 	private Connection con;
 	private PreparedStatement pstmt;
-	
-	public static void main(String[] args) {
-		AccountDAO dao = new AccountDAO();
-		dao.joinAccount();
-	}
+	private Statement stmt;
 
+	/*
+	 * //Test Ok public static void main(String[] args) {
+	 * 
+	 * String id = null, pw = null; AccountDAO dao = new AccountDAO();
+	 * dao.joinAccount(); // È¸¿ø°¡ÀÔ dao.login(id, pw); // ·Î±×ÀÎ
+	 * dao.modifyAccountInfo("nsun9505"); // È¸¿ø Á¤º¸ ¼öÁ¤ + ºñ¹Ð¹øÈ£ º¯°æ
+	 * dao.withdrawalAccount("nsun9505", "³²»óÀ±", "A"); // È¸¿ø Å»Åð }
+	 */
 	public AccountDAO() {
 		connDB();
 	}
 
-	// ÀÏ¹Ý °í°´ È¸¿ø °¡ÀÔ
+	// ÀÏ¹Ý °í°´ È¸¿ø °¡ÀÔ & °ü¸®ÀÚ ÀÎÁõ ÈÄ °ü¸®ÀÚ °¡ÀÔ °¡´É, commit ok
 	public void joinAccount() {
 		Scanner sc = new Scanner(System.in);
+		String account_type = "C";
+		String sel;
+
 		System.out.println("<<<È¸¿ø°¡ÀÔ>>>");
+		while (true) {
+			System.out.println("1. °í°´ °¡ÀÔ \t2. °ü¸®ÀÚ °¡ÀÔ");
+			System.out.print("¼±ÅÃ : ");
+			sel = sc.nextLine();
+			if (sel.equals("1") || sel.equals("2"))
+				break;
+			else
+				System.out.println("1 ¶Ç´Â 2¸¦ ÀÔ·ÂÇÏ½Ê½Ã¿À.");
+		}
+
+		if (sel.equals("2")) {
+			while (true) {
+				System.out.println("<<<°ü¸®ÀÚ °¡ÀÔÀ» À§ÇÑ °ü¸®ÀÚ ÀÎÁõ>>>");
+				System.out.print("°ü¸®ÀÚ ID : ");
+				String adminId = sc.nextLine();
+				System.out.print("°ü¸®ÀÚ PW : ");
+				String adminPw = sc.nextLine();
+
+				try {
+					pstmt = con.prepareStatement(isExistAdminQeury);
+					pstmt.setString(1, adminId);
+					pstmt.setString(2, adminPw);
+					ResultSet rs = pstmt.executeQuery();
+					if (rs.next()) {
+						String type = rs.getString(1);
+						if (type.equals("A") == false) {
+							System.out.print("°ü¸®ÀÚ °èÁ¤ ÀÎÁõ ½ÇÆÐ. ´Ù½Ã ÀÎÁõÇÏ½Ã°Ú½À´Ï±î?");
+							if (sc.nextLine().toUpperCase().equals("N"))
+								return;
+						}
+						System.out.println("°ü¸®ÀÚ ÀÎÁõ ¼º°ø!");
+						account_type = "A";
+						break;
+					} else {
+						System.out.print("°ü¸®ÀÚ °èÁ¤ ÀÎÁõ ½ÇÆÐ. ´Ù½Ã ÀÎÁõÇÏ½Ã°Ú½À´Ï±î?");
+						if (sc.nextLine().toUpperCase().equals("N"))
+							return;
+					}
+				} catch (SQLException e) {
+					System.err.println("sql error : " + e.getMessage());
+					System.exit(1);
+				}
+			}
+		}
 
 		String id = getInputId(sc);
-		String pw = getInputPasswd(sc);
-		String name = getInputName(sc);
-		String phone_num = getInputPhoneNumber(sc);
-		String address = getInputAddress(sc);
-		String birth_date = getInputBirthDate(sc);
-		String sex = getInputSex(sc);
-		String job = getInputJob(sc);
-		
+		String pw, name, phone_num;
+		while (true) {
+			pw = getInputPasswd(sc, "ºñ¹Ð¹øÈ£ ÀÔ·Â  : ");
+			if (pw != null)
+				break;
+		}
+		while (true) {
+			name = getInputName(sc, "ÀÌ¸§ ÀÔ·Â[ÇÊ¼öÁ¤º¸] : ");
+			if (name != null)
+				break;
+		}
+		while (true) {
+			phone_num = getInputPhoneNumber(sc, "ÇÚµåÆù ¹øÈ£ ÀÔ·Â[ÇÊ¼öÁ¤º¸] : ");
+			if (phone_num != null)
+				break;
+		}
+		System.out.println("¾Æ·¡ Á¤º¸µéÀº ÇÊ¼ö Á¤º¸°¡ ¾Æ´Õ´Ï´Ù. EnterKey¸¦ ´­·¯ ½ºÅµÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+		String address = getInputAddress(sc, "ÁÖ¼Ò ÀÔ·Â[ÇÊ¼ö¾Æ´Ô] : ");
+		String birth_date = getInputBirthDate(sc, "»ý³â¿ùÀÏ ÀÔ·Â[ÇÊ¼ö¾Æ´Ô] : ");
+		String sex = getInputSex(sc, "¼ºº° ÀÔ·Â[ÇÊ¼ö¾Æ´Ô] : ");
+		String job = getInputJob(sc, "Á÷¾÷ ÀÔ·Â[ÇÊ¼ö¾Æ´Ô] : ");
+
 		try {
 			pstmt = con.prepareStatement(insertAccountQuery);
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			pstmt.setString(3, name);
 			pstmt.setString(4, phone_num);
-			
-			if(address == null || address.length() == 0)
+
+			if (address == null)
 				pstmt.setNull(5, Types.CHAR);
-			else 
+			else
 				pstmt.setString(5, address);
-			
-			if(birth_date == null || birth_date.length() == 0)
+
+			if (birth_date == null)
 				pstmt.setNull(6, Types.DATE);
-			else 
+			else
 				pstmt.setDate(6, Date.valueOf(birth_date));
-			
-			if(sex == null || sex.length() == 0)
+
+			if (sex == null)
 				pstmt.setNull(7, Types.CHAR);
 			else
 				pstmt.setString(7, sex);
-			
-			if(job == null || job.length() == 0)
+
+			if (job == null)
 				pstmt.setNull(8, Types.CHAR);
 			else
 				pstmt.setString(8, job);
-			
-			pstmt.setString(9, "C");
-			
+
+			pstmt.setString(9, account_type);
+
 			int res = pstmt.executeUpdate();
-			if(res == 1)
+			if (res == 1)
 				System.out.println("È¸¿ø °¡ÀÔ ¼º°ø!");
 			con.commit();
-		}catch(SQLException e) {
-			System.err.println("sql error : "+e.getMessage());
+		} catch (SQLException e) {
+			System.err.println("sql error : " + e.getMessage());
 		}
+	}
+
+	// È¸¿ø Á¤º¸ ¼öÁ¤, commit ok
+	public void modifyAccountInfo(String id) {
+		Scanner sc = new Scanner(System.in);
+		HashMap<String, Boolean> flags = new HashMap<String, Boolean>();
+		boolean flag = false;
+		int ret;
+		System.out.println("<<<È¸¿ø Á¤º¸ ¼öÁ¤>>>");
+		AccountDTO dto = getAccountInfoById(id);
+		if (dto == null) {
+			System.out.println("ºñ¹Ð ¹øÈ£°¡ Æ²¸³´Ï´Ù. È¸¿ø Á¤º¸ ¼öÁ¤À» Á¾·áÇÕ´Ï´Ù.");
+			return;
+		}
+
+		flags.put("password", false);
+		flags.put("name", false);
+		flags.put("phone_number", false);
+		flags.put("address", false);
+		flags.put("birth_date", false);
+		flags.put("sex", false);
+		flags.put("job", false);
+
+		while (true) {
+			System.out.println("<<È¸¿ø Á¤º¸ ¼öÁ¤ Ç×¸ñ ¼±ÅÃ>>");
+			System.out.println("1. ¾ÆÀÌµð[¼öÁ¤ºÒ°¡] : " + dto.getId());
+			System.out.println("2. ºñ¹Ð¹øÈ£ : " + dto.getPw());
+			System.out.println("3. ÀÌ¸§ : " + dto.getName());
+			System.out.println("4. ÇÚµåÆù ¹øÈ£ : " + dto.getPhone_num());
+			System.out.println("5. ÁÖ¼Ò : " + (dto.getAddress() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getAddress()));
+			System.out.println("6. »ý³â¿ùÀÏ : " + (dto.getBirth_date() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getBirth_date().toString()));
+			System.out.println("7. ¼ºº° : " + (dto.getSex() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getSex()));
+			System.out.println("8. Á÷¾÷ : " + (dto.getJob() == null ? "[ÀÔ·ÂÇÏÁö ¾ÊÀ½]" : dto.getJob()));
+			System.out.println("9. ¼öÁ¤  ³»¿ë ÀúÀå ÈÄ Á¾·á");
+			System.out.println("0. ¼öÁ¤ ³»¿ë ÀúÀåÇÏÁö ¾Ê°í Á¾·á");
+			System.out.print("¼öÁ¤ Ç×¸ñ ¼±ÅÃ : ");
+
+			switch (sc.nextLine()) {
+			case "1":
+				System.out.println("¾ÆÀÌµð´Â ¼öÁ¤ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+				break;
+			case "2":
+				String pw = getInputPasswd(sc, "º¯°æÇÒ ºñ¹Ð¹øÈ£ ÀÔ·Â  : ");
+				if (pw != null) {
+					flags.replace("password", true);
+					dto.setPw(pw);
+				}
+				break;
+			case "3":
+				String name = getInputName(sc, "º¯°æÇÒ ÀÌ¸§ ÀÔ·Â : ");
+				if (name != null) {
+					flags.replace("name", true);
+					dto.setName(name);
+				}
+				break;
+			case "4":
+				String phone_num = getInputPhoneNumber(sc, "º¯°æÇÒ ÇÚµåÆù ¹øÈ£ ÀÔ·Â : ");
+				if (phone_num != null) {
+					flags.replace("phone_number", true);
+					dto.setPhone_num(phone_num);
+				}
+				break;
+			case "5":
+				String address = getInputAddress(sc, "º¯°æÇÒ ÁÖ¼Ò ÀÔ·Â : ");
+				if (address != null) {
+					flags.replace("address", true);
+					dto.setAddress(address);
+				} else {
+					flag = decisionNullInput("address", dto, sc);
+					if (flag && flag != flags.get("address"))
+						flags.replace("address", flag);
+				}
+				break;
+			case "6":
+				String bDate = getInputBirthDate(sc, "º¯°æÇÒ »ý³â¿ùÀÏ ÀÔ·Â : ");
+				if (bDate != null) {
+					flags.put("birth_date", true);
+					dto.setBirth_date(Date.valueOf(bDate));
+				} else {
+					flag = decisionNullInput("birth_date", dto, sc);
+					if (flag && flag != flags.get("birth_date"))
+						flags.replace("birth_date", flag);
+				}
+				break;
+			case "7":
+				String sex = getInputSex(sc, "º¯°æÇÒ ¼ºº° ÀÔ·Â : ");
+				if (sex != null) {
+					flags.put("sex", true);
+					dto.setSex(sex);
+				} else {
+					flag = decisionNullInput("sex", dto, sc);
+					if (flag && flag != flags.get("sex"))
+						flags.replace("sex", flag);
+				}
+				break;
+			case "8":
+				String job = getInputJob(sc, "º¯°æÇÒ Á÷¾÷ ÀÔ·Â : ");
+				if (job != null) {
+					flags.put("job", true);
+					dto.setJob(job);
+				} else {
+					flag = decisionNullInput("job", dto, sc);
+					if (flag && flag != flags.get("job"))
+						flags.replace("job", flag);
+
+				}
+				break;
+			case "9":
+				for (String key : flags.keySet()) {
+					if (flags.get(key) == true) {
+						try {
+							pstmt = con.prepareStatement(modifyAccountInfoQuery);
+							pstmt.setString(1, dto.getPw());
+							pstmt.setString(2, dto.getName());
+							pstmt.setString(3, dto.getPhone_num());
+							if (dto.getAddress() == null)
+								pstmt.setNull(4, Types.VARCHAR);
+							else
+								pstmt.setString(4, dto.getAddress());
+							if (dto.getBirth_date() == null)
+								pstmt.setNull(5, Types.DATE);
+							else
+								pstmt.setDate(5, dto.getBirth_date());
+							if (dto.getSex() == null)
+								pstmt.setNull(6, Types.VARCHAR);
+							else
+								pstmt.setString(6, dto.getSex());
+							if (dto.getJob() == null)
+								pstmt.setNull(7, Types.VARCHAR);
+							else
+								pstmt.setString(7, dto.getJob());
+							pstmt.setString(8, id);
+							ret = pstmt.executeUpdate();
+							if (ret == 1)
+								System.out.println("¼öÁ¤À» ¿Ï·áÇß½À´Ï´Ù. È¸¿ø Á¤º¸ ¼öÁ¤À» Á¾·áÇÕ´Ï´Ù.");
+							con.commit();
+						} catch (SQLException e) {
+							System.err.println("[modifyAccount method] sql error : " + e.getMessage());
+							return;
+						}
+						break;
+					}
+				}
+				return;
+			case "0":
+				System.out.println("È¸¿ø Á¤º¸¸¦ ¼öÁ¤ÇÏÁö ¾Ê°í Á¾·áÇÕ´Ï´Ù.");
+				return;
+			default:
+				System.out.println("ÇöÀç ÀÔ·ÂÀº À¯È¿ÇÏÁö ¾ÊÀº ÀÔ·ÂÀÔ´Ï´Ù.");
+				break;
+			}
+		}
+	}
+
+	// ·Î±×ÀÎ ±â´É ±¸Çö
+	public AccountDTO login() {
+		Scanner sc = new Scanner(System.in);
+		AccountDTO dto = null;
+		String id, pw;
+		try {
+			System.out.println("<<<·Î±×ÀÎ>>>");
+			System.out.print("¾ÆÀÌµð : ");
+			id = sc.nextLine();
+			System.out.print("ºñ¹Ð¹øÈ£ : ");
+			pw = sc.nextLine();
+//			System.out.println(id + " " + pw);
+//			if(validCheck(id, regExpId) == false || validCheck(pw, regExpPw) == false) {
+//				System.out.println("[·Î±×ÀÎ ½ÇÆÐ] °¡ÀÔÇÏÁö ¾ÊÀº ¾ÆÀÌµðÀÌ°Å³ª, Àß¸øµÈ ºñ¹Ð¹øÈ£ÀÔ´Ï´Ù.");
+//				return null;
+//			}
+
+			pstmt = con.prepareStatement(isExistAccountQuery);
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				dto = new AccountDTO(rs.getString(1), rs.getString(2), rs.getString(3));
+				System.out.println("[·Î±×ÀÎ ¼º°ø] " + dto.getName() + "´Ô È¯¿µÇÕ´Ï´Ù!");
+			} else {
+				System.out.println("[·Î±×ÀÎ ½ÇÆÐ] °¡ÀÔÇÏÁö ¾ÊÀº ¾ÆÀÌµðÀÌ°Å³ª, Àß¸øµÈ ºñ¹Ð¹øÈ£ÀÔ´Ï´Ù.");
+			}
+		} catch (SQLException e) {
+			System.err.println("sql error : " + e.getMessage());
+		}
+		return dto;
+	}
+
+	// È¸¿øÅ»Åð ±â´É ±¸Çö ¿Ï·á, commit ok
+	public boolean withdrawalAccount(String id, String name, String account_type) {
+		Scanner sc = new Scanner(System.in);
+		try {
+			if (account_type.equals("A")) {
+				if(id.equals("admin")) {
+					System.out.println("admin °èÁ¤Àº Å»ÅðÇÒ ¼ö ¾ø½À´Ï´Ù.");
+					return true;
+				}
+				stmt = con.createStatement();
+				ResultSet rs = stmt.executeQuery("select count(*) from account where account_type='A'");
+				rs.next();
+				int numOfAdmin = rs.getInt(1);
+
+				rs.close();
+				stmt.close();
+				if (numOfAdmin <= 1) {
+					System.out.println("°ü¸®ÀÚ °èÁ¤Àº ÃÖ¼Ò 1°³ ÀÌ»ó ÀÖ¾î¾ß ÇÏ¹Ç·Î  ÇØ´ç °ü¸®ÀÚ °èÁ¤(" + id + ")Àº Å»ÅðÇÒ ¼ö ¾ø½À´Ï´Ù.");
+					return true;
+				}
+			}
+
+			System.out.println("<<<È¸¿ø Å»Åð>>>");
+			System.out.println("È¸¿ø Å»Åð¸¦ À§ÇØ ºñ¹Ð¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.");
+			System.out.print("ºñ¹Ð¹øÈ£ ÀÔ·Â : ");
+			String pw = sc.nextLine();
+			/*
+			 * if(validCheck(pw, regExpPw) == false) {
+			 * System.out.println("ºñ“A¹øÈ£°¡ Æ²·È½À´Ï´Ù. ÀÌÀü È­¸éÀ¸·Î µ¹¾Æ°©´Ï´Ù."); return true; }
+			 */
+			pstmt = con.prepareStatement(isExistAccountQuery);
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				System.out.print(rs.getString(1) + "´Ô Á¤¸»·Î È¸¿øÅ»Åð¸¦ ÇÏ½Ã°Ú½À´Ï±î?(Y/N)");
+				if (sc.nextLine().toUpperCase().equals("Y")) {
+					VehicleDAO VDao = new VehicleDAO();
+					OrderListDAO ODao = new OrderListDAO();
+					if (account_type.equals("A")) {
+						ODao.updateSellerId(id);
+						VDao.updateSellerId(id);
+					} else {
+						ArrayList<Integer> regNumList = ODao.getRegNumsById(id, account_type);
+						if(regNumList.size() > 0) {
+							ODao.deleteOrderListByBuyerId(id);
+							for (int i = 0; i < regNumList.size(); i++)
+								VDao.deleteVehicle(regNumList.get(i));
+						}
+					}
+					pstmt = con.prepareStatement("delete from account where id = ?");
+					pstmt.setString(1, id);
+					int ret = pstmt.executeUpdate();
+					if (ret == 1)
+						System.out.println("È¸¿øÅ»Åð ¿Ï·á!");
+					con.commit();
+					return false;
+				} else {
+					System.out.println("È¸¿øÅ»Åð Ãë¼Ò");
+					return true;
+				}
+			} else {
+				System.out.println("ºñ¹Ð¹øÈ£°¡ Æ²·È½À´Ï´Ù. ÀÌÀü È­¸éÀ¸·Î µ¹¾Æ°©´Ï´Ù.");
+				return true;
+			}
+
+		} catch (SQLException e) {
+			System.err.println("sql error : " + e.getMessage());
+		}
+		return true;
 	}
 
 	protected void finalize() throws Throwable {
 		pstmt.close();
 		con.close();
 	}
-
 
 	private void connDB() {
 		try {
@@ -100,7 +439,6 @@ public class AccountDAO {
 	}
 
 	private String getInputId(Scanner sc) {
-		String regExp = "^[a-zA-Z]{1}[a-zA-Z0-9]{4,14}$";
 		String id = null;
 		// ¾ÆÀÌµð
 		System.out.print("¾ÆÀÌµð(5~15ÀÚ¸®, Æ¯¼ö¹®ÀÚ X, ¿µ¾î ´ë¼Ò¹®ÀÚ¿Í ¼ýÀÚ °áÇÕ)");
@@ -108,7 +446,7 @@ public class AccountDAO {
 			System.out.print("¾ÆÀÌµð ÀÔ·Â : ");
 			id = sc.nextLine();
 
-			if (id.matches(regExp) == false) {
+			if (validCheck(id, regExpId) == false) {
 				System.out.println("¾ÆÀÌµð´Â 5ÀÚ¸® ÀÌ»ó 15ÀÚ¸® ÀÌÇÏÀÇ ¿µ¾î, ¼ýÀÚ Á¶ÇÕÀÔ´Ï´Ù. Æ¯¼ö¹®ÀÚ¸¦ »ç¿ëÇÒ ¼ö ¾øÀ¸¸ç, ½ÃÀÛÀº ¿µ¹®À¸·Î¸¸ °¡´ÉÇÕ´Ï´Ù.");
 				continue;
 			}
@@ -131,125 +469,183 @@ public class AccountDAO {
 		}
 		return id;
 	}
-	
-	private String getInputPasswd(Scanner sc) {
+
+	private boolean validCheck(String src, String regExp) {
+		return src.matches(regExp);
+	}
+
+	private String getInputPasswd(Scanner sc, String message) {
 		String pw = null;
-		String regExp ="^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&])[A-Za-z[0-9]$@$!%*#?&]{8,15}$";
-		
+
 		System.out.println("ºñ¹Ð¹øÈ£´Â ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ[$@!%*#] 1°³ ÀÌ»óÀ» Á¶ÇÕÇÑ 8~15ÀÚ¸® ÀÔ´Ï´Ù.");
 		// ºñ¹Ð¹øÈ£ È­ÀÎ
-		while (true) {
-			System.out.print("ºñ¹Ð¹øÈ£ ÀÔ·Â : ");
-			pw = sc.nextLine();
-			
-			// ºñ¹Ð¹øÈ£ °Ë»ç : ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ¸¦ Æ÷ÇÔÇØ¾ß ÇÔ.
-			if(pw.matches(regExp) == false) {
-				System.out.println("ºñ¹Ð¹øÈ£´Â ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ[$@!%*#] 1°³ ÀÌ»óÀ» Æ÷ÇÔÇØ¾ß ÇÕ´Ï´Ù.");
-				continue;
-			}
-			
-			System.out.print("ºñ¹Ð¹øÈ£ È®ÀÎ : ");
-			String pwConfirm = sc.nextLine();
+		System.out.print(message);
+		pw = sc.nextLine();
 
-			// ÀÔ·ÂÇÑ ºñ¹Ð¹øÈ£°¡ ¸Â´ÂÁö È®ÀÎ
-			if (pw.equals(pwConfirm) == false) {
-				System.out.println("ºñ¹Ð¹øÈ£, ºñ¹Ð¹øÈ£ È®ÀÎÀÌ ´Ù¸¨´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇÏ¼¼¿ä.");
-				continue;
-			} else 
-				break;
+		// ºñ¹Ð¹øÈ£ °Ë»ç : ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ¸¦ Æ÷ÇÔÇØ¾ß ÇÔ.
+		if (validCheck(pw, regExpPw) == false) {
+			System.out.println("ºñ¹Ð¹øÈ£´Â ¿µ¾î, ¼ýÀÚ, Æ¯¼ö¹®ÀÚ[$@!%*#] 1°³ ÀÌ»óÀ» Æ÷ÇÔÇØ¾ß ÇÕ´Ï´Ù.");
+			return null;
 		}
-		
+
+		System.out.print("ºñ¹Ð¹øÈ£ È®ÀÎ : ");
+		String pwConfirm = sc.nextLine();
+
+		// ÀÔ·ÂÇÑ ºñ¹Ð¹øÈ£°¡ ¸Â´ÂÁö È®ÀÎ
+		if (pw.equals(pwConfirm) == false) {
+			System.out.println("ºñ¹Ð¹øÈ£, ºñ¹Ð¹øÈ£ È®ÀÎÀÌ ´Ù¸¨´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇÏ¼¼¿ä.");
+			return null;
+		}
 		return pw;
 	}
 
-	private String getInputName(Scanner sc) {
-		String regExp = "^[°¡-ÆR]{2,4}|[a-zA-Z]{2,10}\\s[a-zA-Z]{2,10}$";
+	private String getInputName(Scanner sc, String message) {
 		String name = null;
 		// ÀÌ¸§
-		while (true) {
-			System.out.println("ÀÌ¸§ Á¦¾à»çÇ× : (¿µ¾î FirstName(2~10ÀÚ¸®), LastName(2~10ÀÚ¸®)");
-			System.out.print("ÀÌ¸§ ÀÔ·Â : ");
-			name = sc.nextLine();
-			if (name.matches(regExp) == false) {
-				System.out.println("ÀÌ¸§Àº ÇÊ¼ö Ç×¸ñÀÌ¸ç Á¦¾à»çÇ×À» ÁöÄÑÁÖ¼¼¿ä.");
-				continue;
-			}
-			else
-				break;
+		System.out.println("ÀÌ¸§ Á¦¾à»çÇ× : ([¿µ¾î] Çü½Ä : [FirstName](2~10ÀÚ¸®) [LastName](2~10ÀÚ¸®)");
+		System.out.println("Ex. Gildong HongÃ³·³ FirstName°ú LastName »çÀÌ¿¡ °ø¹é ÇÑ Ä­ÀÌ ÇÊ¿ä");
+		System.out.print(message);
+		name = sc.nextLine();
+		if (validCheck(name, regExpName) == false) {
+			System.out.println("ÀÌ¸§ Á¦¾à»çÇ×À» ÁöÄÑÁÖ¼¼¿ä.");
+			return null;
 		}
 		return name;
 	}
 
-	private String getInputPhoneNumber(Scanner sc) {
+	private String getInputPhoneNumber(Scanner sc, String meesage) {
 		String phone_num = null;
-		String regExp = "^01(?:0|1|[6-9])[-]?(\\d{3}|\\d{4})[-]?(\\d{4})$";
 		// ÇÚµåÆù ¹øÈ£
-		System.out.println("ÇÚµåÆù ¹øÈ£ Á¦¾à»çÇ× : (¿¹½Ã 01012341234 or 010-1234-1234)");
-		while (true) {
-			System.out.print("ÇÚµåÆù ÀÔ·Â : ");
-			phone_num = sc.nextLine();
-			
-			if (phone_num.matches(regExp) == false) {
-				System.out.println("ÇÚµåÆù ¹øÈ£´Â ÇÊ¼ö Á¤º¸ÀÔ´Ï´Ù. ÀÔ·Â ºÎÅ¹µå¸³´Ï´Ù. Çü½Ä : 01012341234 or 010-1234-1234");
-				continue;
-			}
-			break;
+		System.out.println("ÇÚµåÆù ¹øÈ£ Á¦¾à»çÇ× : (¿¹½Ã 010-1234-1234 or 010-123-1234)");
+		System.out.print(meesage);
+		phone_num = sc.nextLine();
+
+		if (validCheck(phone_num, regExpPhoneNum) == false) {
+			System.out.println("À¯È¿ÇÏÁö ¾ÊÀº Çü½Ä ÀÔ´Ï´Ù. : 010-123-1234 or 010-1234-1234");
+			return null;
 		}
+
 		return phone_num;
 	}
 
-	private String getInputAddress(Scanner sc) {
-		System.out.print("ÁÖ¼Ò ÀÔ·Â[ÇÊ¼ö ¾Æ´Ô]: ");
+	private String getInputAddress(Scanner sc, String message) {
+		System.out.print(message);
 		String address = sc.nextLine();
-		if(address == null || address.length() == 0)
+		if (address == null || address.equals(""))
 			return null;
 		return address;
 	}
-	
-	private String getInputSex(Scanner sc) {
+
+	private String getInputSex(Scanner sc, String message) {
 		String sex = null;
 		System.out.println("¼ºº° (F:¿© / M : ³²)");
-		while(true) {
-			System.out.print("¼ºº° ÀÔ·Â : ");
+		while (true) {
+			System.out.print(message);
 			sex = sc.nextLine().toUpperCase();
-			if(sex == null || sex.length() == 0)
+			if (sex == null || sex.length() == 0)
 				return null;
-			if(sex.equals("F") || sex.equals("M"))
+			if (sex.equals("F") || sex.equals("M"))
 				break;
-			else
+			else {
 				System.out.println("¼ºº°À» ÀÔ·ÂÇÏ½Ç °æ¿ì F/f(¿©ÀÚ), M/m(³²ÀÚ)À¸·Î ÀÔ·Â ºÎÅ¹µå¸³´Ï´Ù.");
+				System.out.print("´Ù½Ã ÀÔ·ÂÇÏ½Ã°Ú½À´Ï±î?(Y/N) : ");
+				if (sc.nextLine().toUpperCase().equals("Y"))
+					continue;
+				else
+					return null;
+			}
 		}
 		return sex;
 	}
 
-	private String getInputJob(Scanner sc) {
-		System.out.print("Á÷¾÷ ÀÔ·Â[ÇÊ¼ö ¾Æ´Ô] : ");
+	private String getInputJob(Scanner sc, String message) {
+		System.out.print(message);
 		String job = sc.nextLine();
-		if(job == null || job.length() == 0)
+		if (job == null || job.length() == 0)
 			return null;
 		return job;
 	}
 
-	private String getInputBirthDate(Scanner sc){
-		String regExp = "^[0-9][0-9][0-9][0-9]\\-[0-9][0-9]\\-[0-9][0-9]$";
+	private String getInputBirthDate(Scanner sc, String message) {
 		String bDate = null;
-		
+
 		System.out.println("»ýÀÏ Á¦¾à»çÇ×[ÇÊ¼ö ¾Æ´Ô] : YYYY-MM-DD");
 		while (true) {
-			System.out.print("»ýÀÏ ÀÔ·Â : ");
+			System.out.print(message);
 			bDate = sc.nextLine();
-			
-			if(bDate == null || bDate.length() == 0)
+
+			if (bDate == null || bDate.length() == 0)
 				return null;
-			
-			if (bDate.matches(regExp) == false) {
+
+			if (validCheck(bDate, regExpDate) == false) {
 				System.out.println("³â¿ùÀÏ(YYYY-MM-DD) Çü½ÄÀ» ÁöÄÑÁÖ½Ê½Ã¿À.");
-				continue;
-			}
-			else 
+				System.out.print("´Ù½Ã ÀÔ·ÂÇÏ½Ã°Ú½À´Ï±î?(Y/N) : ");
+				if (sc.nextLine().toUpperCase().equals("Y"))
+					continue;
+				else
+					return null;
+			} else
 				break;
 		}
 		return bDate;
 	}
-	
+
+	private AccountDTO getAccountInfoById(String id) {
+		Scanner sc = new Scanner(System.in);
+		AccountDTO dto = null;
+		try {
+			System.out.println("È¸¿ø Á¤º¸ ¼öÁ¤À» À§ÇÏ¿© ºñ¹Ð¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.");
+			while (true) {
+				System.out.print("ºñ¹Ð¹øÈ£ ÀÔ·Â : ");
+				String pw = sc.nextLine();
+				pstmt = con.prepareStatement(getAccountInfoQuery);
+				pstmt.setString(1, id);
+				pstmt.setString(2, pw);
+				ResultSet rs = pstmt.executeQuery();
+
+				if (rs.next()) {
+					dto = new AccountDTO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),
+							rs.getString(5), rs.getDate(6), rs.getString(7), rs.getString(8), rs.getString(9));
+					rs.close();
+					break;
+				} else {
+					System.out.print("ºñ¹Ð¹øÈ£°¡ Æ²¸³´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇÏ½Ã°Ú½À´Ï±î?(Y/N)");
+					if (sc.nextLine().toUpperCase().equals("Y"))
+						continue;
+					else
+						break;
+				}
+			}
+
+		} catch (SQLException e) {
+			System.err.println("sql error : " + e.getMessage());
+			System.exit(1);
+		}
+		return dto;
+	}
+
+	private boolean decisionNullInput(String param, AccountDTO dto, Scanner sc) {
+		boolean ret = false;
+		while (true) {
+			System.out.print("ÀÔ·Â °ªÀÌ ¾ø½À´Ï´Ù. NULL°ªÀ» Àû¿ëÇÏ½Ã°Ú½À´Ï±î?(Y/N) : ");
+			String input = sc.nextLine().toUpperCase();
+			if (input.equals("Y")) {
+				if (param.equals("address"))
+					dto.setAddress(null);
+				else if (param.equals("birth_date"))
+					dto.setBirth_date(null);
+				else if (param.equals("job"))
+					dto.setJob(null);
+				else if (param.equals("sex"))
+					dto.setSex(null);
+				ret = true;
+				break;
+			} else if (input.equals("N")) {
+				break;
+			} else {
+				System.out.println("N ¶Ç´Â Y¸¦ ÀÔ·ÂÇÏ¼¼¿ä.");
+			}
+		}
+		return ret;
+	}
 }
