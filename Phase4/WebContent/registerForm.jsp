@@ -2,6 +2,7 @@
     pageEncoding="utf-8"%>
     <%
     	String checkId = (String)request.getAttribute("checkOkId");
+    	String account_type = (String)session.getAttribute("account_type");
     	//String account_type = (String)session.getAttribute("account_type");
     %>
 <!DOCTYPE html>
@@ -121,22 +122,22 @@
 			</div>        	
         </div>
         <div class="form-group">
-        	<div class="row">
-        		<div class="col-xs-6"><input type="text" class="form-control" id="fname" name="first_name" placeholder="First Name" required="required" maxlength="10"></div>
-				<div class="col-xs-6"><input type="text" class="form-control" id="lname" name="last_name" placeholder="Last Name" required="required" maxlength="10"></div>
-			</div>
+        		<input type="text" class="form-control" id="fname" name="first_name" placeholder="FirstName(영어 대소문자 4~10자리)" required="required" maxlength="10">
+        </div>
+        <div class="form-group">
+			<input type="text" class="form-control" id="lname" name="last_name" placeholder="LastName(영어 대소문자 4~10자리)" required="required" maxlength="10">
         </div>
 		<div class="form-group">
-            <input type="password" class="form-control" id="user_pw" name="pw" placeholder="비밀번호" required="required" maxlength="15">
+            <input type="password" class="form-control" id="user_pw" name="password" placeholder="비밀번호" required="required" maxlength="15">
         </div>
 		<div class="form-group">
-            <input type="password" class="form-control" id="user_pwCheck" name="pwck" placeholder="비밀번호 확인" required="required" maxlength="15">
+            <input type="password" class="form-control" id="user_pwCheck" name="passwordCheck" placeholder="비밀번호 확인" required="required" maxlength="15">
         </div>
         <div class="form-group">
             <input type="text" class="form-control" id="user_phone" name="phoneNumber" placeholder="핸드폰 번호(형식 : XXX-XXX-XXXX OR XXX-XXXX-XXXX)" maxlength="13" required="required">
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="user_pwCheck" name="pwck" placeholder="주소" maxlength="50">
+            <input type="text" class="form-control" id="user_address" name="address" placeholder="주소" maxlength="50">
         </div>
         <div class="form-group">
         	<input type="date" class="form-control" id="user_birth" name="birthDate" min="1900-01-01" max="2000-12-31">  	
@@ -156,9 +157,16 @@
 			</div>
 		</div>
 		<div class="form-group">
+	        <input type="text" class="form-control" id="user_job" name="job" placeholder="Job(영어로 입력 : Student, etc.)" maxlength="10">
+		</div>
+		<div class="form-group">
             <input type="button" class="btn btn-success btn-lg btn-block" value="회원가입" onclick="return checkInfo()">
         </div>
-<!--        <input type="hidden" value="<%=account_type %>"> -->
+        <%if(account_type == null){ %> 
+        	<input type="hidden" name="account_type" value="C"> 
+        <%} else { %> 
+        	<input type="hidden" name="account_type" value="<%=account_type %>">
+        <%} %>
     </form>
 	<div class="text-center">이미 계정이 있나요? <a href="loginForm.html">로그인 창 가기</a></div>
 </div>

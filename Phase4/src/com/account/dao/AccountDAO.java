@@ -1,9 +1,11 @@
 package com.account.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Scanner;
 
 import javax.naming.Context;
@@ -25,11 +27,11 @@ public class AccountDAO {
 	private DataSource dataSrc;
 	Connection conn;
 	PreparedStatement pstmt;
-	
+
 	public AccountDAO() {
 		try {
 			Context context = new InitialContext();
-			dataSrc = (DataSource)context.lookup("java:comp/env/jdbc/Oracle");
+			dataSrc = (DataSource) context.lookup("java:comp/env/jdbc/Oracle");
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -37,7 +39,7 @@ public class AccountDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public AccountVO login(String user_id, String user_pw) {
 		AccountVO dto = null;
 		try {
@@ -52,7 +54,63 @@ public class AccountDAO {
 				dto = null;
 		} catch (SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
+		} finally {
+			try {
+				pstmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				System.err.println("[joinAccount] sql error : " + e.getMessage());
+			}
 		}
 		return dto;
+	}
+
+	public boolean joinAccount(AccountVO newAccount) {
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(insertAccountQuery);
+			pstmt.setString(1, newAccount.getId());
+			pstmt.setString(2, newAccount.getPw());
+			pstmt.setString(3, newAccount.getName());
+			pstmt.setString(4, newAccount.getPhone_num());
+
+			if (newAccount.getAddress() == null)
+				pstmt.setNull(5, Types.CHAR);
+			else
+				pstmt.setString(5, newAccount.getAddress());
+
+			if (newAccount.getBirth_date() == null)
+				pstmt.setNull(6, Types.DATE);
+			else
+				pstmt.setDate(6, newAccount.getBirth_date());
+
+			if (newAccount.getSex() == null)
+				pstmt.setNull(7, Types.CHAR);
+			else
+				pstmt.setString(7, newAccount.getSex());
+
+			if (newAccount.getJob() == null)
+				pstmt.setNull(8, Types.CHAR);
+			else
+				pstmt.setString(8, newAccount.getJob());
+
+			pstmt.setString(9, newAccount.getAccount_type());
+
+			int res = pstmt.executeUpdate();
+			if (res == 1) {
+				conn.commit();
+				return true;	
+			}
+		} catch (SQLException e) {
+			System.err.println("sql error : " + e.getMessage());
+		} finally {
+			try {
+				pstmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				System.err.println("[joinAccount] sql error : " + e.getMessage());
+			}
+		}
+		return false;
 	}
 }

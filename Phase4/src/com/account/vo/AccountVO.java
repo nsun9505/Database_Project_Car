@@ -3,10 +3,10 @@ package com.account.vo;
 import java.sql.Date;
 
 public class AccountVO {
-	private String id;					// ÇÊ¼ö
-	private String pw;					// ÇÊ¼ö
-	private String name;				// ÇÊ¼ö
-	private String phone_num;			// ÇÊ¼ö
+	private String id;					// ï¿½Ê¼ï¿½
+	private String pw;					// ï¿½Ê¼ï¿½
+	private String name;				// ï¿½Ê¼ï¿½
+	private String phone_num;			// ï¿½Ê¼ï¿½
 	private String address;
 	private Date birth_date;
 	private String sex;
@@ -42,7 +42,7 @@ public class AccountVO {
 		this.job = cpDto.getJob();
 		this.account_type = cpDto.getAccount_type();
 	}
-	
+
 	public String getId() {
 		return id;
 	}
