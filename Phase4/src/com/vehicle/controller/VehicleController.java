@@ -12,13 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.account.vo.AccountVO;
-import com.vehicle.dao.VehicleDAO;
 import com.vehicle.service.VehicleService;
 
 /**
  * Servlet implementation class VehicleController
  */
+@SuppressWarnings("serial")
 @WebServlet("/vehicle/*")
 public class VehicleController extends HttpServlet {
 	VehicleService vehicleService;
@@ -48,6 +47,7 @@ public class VehicleController extends HttpServlet {
 	protected void doHandle(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
 		String nextPage ="";
 		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html; charset=utf-8");
 		String action = request.getPathInfo();
 		System.out.println(action);
 		try {

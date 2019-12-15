@@ -47,7 +47,7 @@
 	<br><br><br>
 	<h1 style="text-align:center; font: 50px arial">중고차 매매 사이트 로그인</h1>
 	<div class="login-form">
-    <form action="${contextPath}/account/login.do" method="post">
+    <form action="${contextPath}/account/login.do" method="post" name="loginForm">
         <h2 class="text-center" style="color:#63738a">Log in</h2>       
         <div class="form-group">
             <input type="text" class="form-control" name="user_id" placeholder="ID" maxlength="20" required="required">
@@ -56,10 +56,10 @@
             <input type="password" class="form-control" name="user_pw" placeholder="PASSWORD" maxlength="20" required="required">
         </div>
         <div class="form-group">
-            <input type="submit" class="btn btn-primary btn-block" value="Login">
+            <input type="button" class="btn btn-primary btn-block" value="Login">
         </div>        
     </form>
-    <p class="text-center"><a href="registerForm.jsp">회원가입</a></p>
+    <p class="text-center"><a href="${contextPath}/login/registerForm.jsp">회원가입</a></p>
 	</div>
 </div>
 </body>

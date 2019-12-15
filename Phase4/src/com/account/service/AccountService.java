@@ -21,4 +21,8 @@ public class AccountService {
 		
 		return ret;
 	}
+	
+	public boolean idDupCheck(String user_id) {
+		return accountDAO.idDupCheck(user_id);
+	}
 }

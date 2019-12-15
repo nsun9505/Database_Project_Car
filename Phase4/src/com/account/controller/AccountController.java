@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.websocket.Session;
 
 import com.account.service.AccountService;
 import com.account.vo.AccountVO;
@@ -20,8 +19,21 @@ import com.account.vo.AccountVO;
  * Servlet implementation class AccountController
  */
 @WebServlet("/account/*")
-public class AccountController extends HttpServlet {
+public class AccountController extends HttpServlet {     
+	/**
+	 * 
+	 */
 	AccountService accountService;
+
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AccountController() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+    
+
 	/**
 	 * @see Servlet#init(ServletConfig)
 	 */
@@ -46,11 +58,15 @@ public class AccountController extends HttpServlet {
 	}
 
 	protected void doHandle(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
-		// TODO Auto-generated method stub
 		String nextPage ="";
 		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html; charset=utf-8");
+		
 		String action = request.getPathInfo();
-		System.out.println(action);
+		
+		System.out.println("action : " + action);
+		System.out.println("request : " + request.getRequestURL());
+		System.out.println(request.getHeaderNames());
 		try {
 			if(action.equals("/login.do")) {
 				String user_id = request.getParameter("user_id");
@@ -59,7 +75,6 @@ public class AccountController extends HttpServlet {
 				AccountVO userInfo = accountService.login(user_id, user_pw);
 				
 				if(userInfo != null) {
-					System.out.println("로그인 성공");
 					HttpSession session = request.getSession();
 					session.setAttribute("isLogon", "true");
 					session.setAttribute("user_id", userInfo.getId());
@@ -69,11 +84,19 @@ public class AccountController extends HttpServlet {
 				nextPage = "/vehicle/list.do";
 			} else if(action.equals("/modify.do")) {
 				nextPage = "/vehicle/list.do";
+			} else if(action.equals("/idDupCheck.do")) {
+				String user_id = request.getParameter("id");
+				boolean ret = accountService.idDupCheck(user_id);
+				if(ret == true) {
+					request.setAttribute("checkOkId", user_id);
+				} 
+				nextPage = "/login/registerForm.jsp";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);
+			return;
 		}catch(Exception e) {
-			e.printStackTrace();
+			System.out.println("[error] : "+e.getMessage());
 		}
 	}
 }

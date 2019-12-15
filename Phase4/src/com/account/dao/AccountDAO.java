@@ -1,13 +1,10 @@
 package com.account.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Scanner;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -112,5 +109,23 @@ public class AccountDAO {
 			}
 		}
 		return false;
+	}
+
+	public boolean idDupCheck(String user_id) {
+		boolean ret = false;
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("select count(id) from account where id=?");
+			pstmt.setString(1, user_id);
+			
+			ResultSet rs = pstmt.executeQuery();
+			if(rs.next())
+				if(rs.getInt(1) == 0)
+					ret = true;
+			
+		}catch(SQLException e) {
+			System.err.println("[idDupCheck()] sql error : "+e.getMessage());
+		}
+		return ret;
 	}
 }

@@ -5,17 +5,21 @@
     	String account_type = (String)session.getAttribute("account_type");
     	//String account_type = (String)session.getAttribute("account_type");
     %>
+    
+    <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <title>회원가입</title>
 <script type="text/javascript" src="<c:url value="/resource/js/jquery-3.4.1.js"/>"></script>
-<script language="JavaScript" src="MemberCheckValid.js" charset="UTF-8"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-<style type="text/css">
+<script type="text/javascript" src="${contextPath }/login/registerValidCheck.js" charset="UTF-8"></script>
+<style  type="text/css">
 	body{
 		color: black;
 		background: white;
@@ -107,37 +111,37 @@
 </head>
 <body>
 <div class="signup-form">
-	<form action="/account/register.do" method="post" name="joinForm">
+	<form action="${contextPath}/account/register.do" method="post" name="joinForm">
 		<h2>회원가입</h2>
-		<p class="hint-text" style="font-size:10px;">아이디, 비밀번호 : 5~15자의 영문 대소문자와 숫자로만 입력</p>
+		<p class="hint-text" style="font-size:10px;">아이디 : 5~15자의 영문 대소문자와 숫자로만 입력</p>
         <div class="form-group">
 			<div class="row">
 			<%if(checkId == null){ %>
-				<div class="col-xs-6"><input type="text" class="form-control" id="user_id" name="id" placeholder="아이디" required="required" maxlength="14"></div>
-				<div class="col-xs-6"><input type="button" class="form-control" onclick="return checkDupId()" value="중복확인"></div>
+				<div class="col-xs-6"><input type="text" class="form-control" id="user_id" name="id" value="" placeholder="ID" required="required" maxlength="14"></div>
+				<div class="col-xs-6"><input type="button" class="form-control" onclick="return idDuplicateCheck()" value="중복확인"></div>
 			<%} else{ %>
 				<div class="col-xs-6"><input type="text" class="form-control" id="user_id" name="id" value="<%=checkId%>" placeholder="아이디" required="required" maxlength="14" readOnly></div>
-				<div class="col-xs-6"><input type="button" class="form-control" onclick="return checkDupId()" value="중복확인" disabled="disabled"></div>
+				<div class="col-xs-6"><input type="button" class="form-control" onclick="return idDuplicateCheck()" value="중복확인" disabled="disabled"></div>
 			<% } %>
 			</div>        	
         </div>
         <div class="form-group">
-        		<input type="text" class="form-control" id="fname" name="first_name" placeholder="FirstName(영어 대소문자 4~10자리)" required="required" maxlength="10">
+        		<input type="text" class="form-control" id="fname" name="first_name" placeholder="FirstName (4~10)" required="required" maxlength="10">
         </div>
         <div class="form-group">
-			<input type="text" class="form-control" id="lname" name="last_name" placeholder="LastName(영어 대소문자 4~10자리)" required="required" maxlength="10">
+			<input type="text" class="form-control" id="lname" name="last_name" placeholder="LastName (4~10)" required="required" maxlength="10">
         </div>
 		<div class="form-group">
-            <input type="password" class="form-control" id="user_pw" name="password" placeholder="비밀번호" required="required" maxlength="15">
+            <input type="password" class="form-control" id="user_pw" name="password" placeholder="Password" required="required" maxlength="15">
         </div>
 		<div class="form-group">
-            <input type="password" class="form-control" id="user_pwCheck" name="passwordCheck" placeholder="비밀번호 확인" required="required" maxlength="15">
+            <input type="password" class="form-control" id="user_pwCheck" name="passwordCheck" placeholder="Password confirm" required="required" maxlength="15">
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="user_phone" name="phoneNumber" placeholder="핸드폰 번호(형식 : XXX-XXX-XXXX OR XXX-XXXX-XXXX)" maxlength="13" required="required">
+            <input type="text" class="form-control" id="user_phone" name="phoneNumber" placeholder="Phone(Format : XXX-XXX-XXXX OR XXX-XXXX-XXXX)" maxlength="13" required="required">
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="user_address" name="address" placeholder="주소" maxlength="50">
+            <input type="text" class="form-control" id="user_address" name="address" placeholder="address" maxlength="50">
         </div>
         <div class="form-group">
         	<input type="date" class="form-control" id="user_birth" name="birthDate" min="1900-01-01" max="2000-12-31">  	
@@ -157,10 +161,10 @@
 			</div>
 		</div>
 		<div class="form-group">
-	        <input type="text" class="form-control" id="user_job" name="job" placeholder="Job(영어로 입력 : Student, etc.)" maxlength="10">
+	        <input type="text" class="form-control" id="user_job" name="job" placeholder="Job(Input English : Student, etc.)" maxlength="10">
 		</div>
 		<div class="form-group">
-            <input type="button" class="btn btn-success btn-lg btn-block" value="회원가입" onclick="return checkInfo()">
+            <input type="button" class="btn btn-success btn-lg btn-block" value="register" onclick="return checkInfo()">
         </div>
         <%if(account_type == null){ %> 
         	<input type="hidden" name="account_type" value="C"> 
@@ -168,7 +172,7 @@
         	<input type="hidden" name="account_type" value="<%=account_type %>">
         <%} %>
     </form>
-	<div class="text-center">이미 계정이 있나요? <a href="loginForm.html">로그인 창 가기</a></div>
+	<div class="text-center">already account : <a href="${contextPath}/index.jsp">login window</a></div>
 </div>
 </body>
 </html>

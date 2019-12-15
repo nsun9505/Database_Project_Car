@@ -7,16 +7,13 @@
 		String user_id = (String)session.getAttribute("user_id");
 	%>
 	
-    <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <!doctype html>
-<html lang="en">
+<html>
 <head>
 <!-- Required meta tags -->
 <meta charset="utf-8">
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-
+<meta name="viewport"content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <!-- Bootstrap CSS -->
 <link rel="stylesheet"
 	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -89,7 +86,7 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
   			<ul class="nav justify-content-end" style="height:100%">
   				<%if(isLogon == null){ %>
  				 <li class="nav-item">
-    				<a class="nav-link" style="height:100%" href="${contextPath}/loginForm.jsp">Login</a>
+    				<a class="nav-link" style="height:100%" href="${contextPath}/login/loginForm.jsp">Login</a>
   				</li>
   				<%} else { %>
   				<li class="nav-item"><a class="nav-link"><%=user_id %>님 반갑습니다.</a></li>
@@ -97,7 +94,7 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
   					<a class="nav-link" style="height:100%" href="${contextPath}/account/modify.do">회원정보수정</a>
   				</li>
   				<li class="nav-item">
-    				<a class="nav-link" style="height:100%" href="${contextPath}/logout.jsp">Logout</a>
+    				<a class="nav-link" style="height:100%" href="${contextPath}/login/logout.jsp">Logout</a>
   				</li>
   				<%} %>
 			</ul>
