@@ -56,7 +56,7 @@
             <input type="password" class="form-control" name="user_pw" placeholder="PASSWORD" maxlength="20" required="required">
         </div>
         <div class="form-group">
-            <input type="button" class="btn btn-primary btn-block" value="Login">
+            <input type="submit" class="btn btn-primary btn-block" value="Login">
         </div>        
     </form>
     <p class="text-center"><a href="${contextPath}/login/registerForm.jsp">회원가입</a></p>

@@ -2,6 +2,7 @@ package com.account.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.Date;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -91,6 +92,21 @@ public class AccountController extends HttpServlet {
 					request.setAttribute("checkOkId", user_id);
 				} 
 				nextPage = "/login/registerForm.jsp";
+			} else if(action.equals("/register.do")) {
+				String id = (String)request.getParameter("id");
+				String pw = (String) request.getParameter("password");
+				String fname = (String) request.getParameter("first_name");
+				String lname = (String) request.getParameter("last_name");
+				String phone = (String) request.getParameter("phoneNumber");
+				String addr = (String) request.getParameter("address");
+				String strDate = (String) request.getParameter("birthDate");
+				String gender = (String) request.getParameter("gender");
+				String job = (String) request.getParameter("job");
+				String account_type = (String) request.getParameter("account_type");
+				
+				accountService.register(id, pw, fname+" "+lname, phone, addr, strDate, gender, job, account_type);
+				
+				nextPage = "/login/loginForm.jsp";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);

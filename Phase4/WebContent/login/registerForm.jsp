@@ -3,6 +3,8 @@
     <%
     	String checkId = (String)request.getAttribute("checkOkId");
     	String account_type = (String)session.getAttribute("account_type");
+    	if(account_type == null)
+    		account_type = "C";
     	//String account_type = (String)session.getAttribute("account_type");
     %>
     
@@ -153,7 +155,7 @@
 				</div>
 				<div class="col-xs-6">
 					<select name="gender" class="form-control">
-						<option value="None" checked>None</option>
+						<option value="" checked>None</option>
 						<option value="F">Female</option>
 						<option value="M">Male</option>
 					</select>
@@ -161,7 +163,20 @@
 			</div>
 		</div>
 		<div class="form-group">
-	        <input type="text" class="form-control" id="user_job" name="job" placeholder="Job(Input English : Student, etc.)" maxlength="10">
+			<div class="row">
+				<div class="col-xs-6">
+					<input type="text" value="JOB" class="form-control" readOnly>
+				</div>
+				<div class="col-xs-6">
+					<select name="job" class="form-control">
+						<option value="None" checked>None</option>
+						<option value="Student">Student</option>
+						<option value="Profession">Profession</option>
+						<option value="Self-employed">Self-employed</option>
+						<option value="Other">Other</option>
+					</select>
+				</div>
+			</div>
 		</div>
 		<div class="form-group">
             <input type="button" class="btn btn-success btn-lg btn-block" value="register" onclick="return checkInfo()">
