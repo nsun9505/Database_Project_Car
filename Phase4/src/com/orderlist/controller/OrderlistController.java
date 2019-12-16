@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import com.account.vo.AccountVO;
 import com.orderlist.service.OrderlistService;
 import com.orderlist.vo.OrderlistVO;
+import com.vehicle.dao.VehicleDAO;
 
 /**
  * Servlet implementation class OrderlistController
@@ -73,7 +74,9 @@ public class OrderlistController extends HttpServlet {
 				if(user.getAccount_type().equals("C")) {
 					orderlist = orderlistService.getCustomerOrderList(user.getId());
 				}else {
-					System.out.println(user.getId());
+					VehicleDAO dao = new VehicleDAO(); 
+					ArrayList<String> makelist = dao.getMake();
+					session.setAttribute("make_list", makelist);
 					orderlist = orderlistService.getAdminOrderList(user.getId());
 				}
 				

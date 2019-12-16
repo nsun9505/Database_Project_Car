@@ -152,7 +152,7 @@
 				</div>
 				<div class="col-xs-6">
 					<select name="gender" class="form-control">
-						<option value="" checked>None</option>
+						<option value="" selected>None</option>
 						<option value="F">Female</option>
 						<option value="M">Male</option>
 					</select>
@@ -166,7 +166,7 @@
 				</div>
 				<div class="col-xs-6">
 					<select name="job" class="form-control">
-						<option value="None" checked>None</option>
+						<option value="None" selected>None</option>
 						<option value="Student">Student</option>
 						<option value="Profession">Profession</option>
 						<option value="Self-employed">Self-employed</option>

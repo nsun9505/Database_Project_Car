@@ -64,7 +64,7 @@ public class OrderlistDAO {
 		
 		try {
 			conn = dataSrc.getConnection();
-			pstmt = conn.prepareStatement("select * from order_list where buyer_id != 'admin'");
+			pstmt = conn.prepareStatement("select * from order_list where buyer_id != 'admin' order by sell_date");
 			rs = pstmt.executeQuery();
 			while (rs.next()) 
 				list.add(new OrderlistVO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4)));
