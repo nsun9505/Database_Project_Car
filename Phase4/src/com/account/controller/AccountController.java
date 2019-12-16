@@ -78,12 +78,19 @@ public class AccountController extends HttpServlet {
 				if(userInfo != null) {
 					HttpSession session = request.getSession();
 					session.setAttribute("isLogon", "true");
-					session.setAttribute("user_id", userInfo.getId());
-					session.setAttribute("user_name", userInfo.getName());
-					session.setAttribute("account_type", userInfo.getAccount_type());
+					session.setAttribute("userInfo", userInfo);
 				}
 				nextPage = "/vehicle/list.do";
-			} else if(action.equals("/modify.do")) {
+			} else if(action.equals("/modifyUserInfo.do")) {
+				String id = (String)request.getParameter("id");
+				String pw = (String) request.getParameter("password");
+				String lname = (String) request.getParameter("name");
+				String phone = (String) request.getParameter("phoneNumber");
+				String addr = (String) request.getParameter("address");
+				String strDate = (String) request.getParameter("birthDate");
+				String gender = (String) request.getParameter("gender");
+				String job = (String) request.getParameter("job");
+				
 				nextPage = "/vehicle/list.do";
 			} else if(action.equals("/idDupCheck.do")) {
 				String user_id = request.getParameter("id");

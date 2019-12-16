@@ -3,10 +3,10 @@ package com.account.vo;
 import java.sql.Date;
 
 public class AccountVO {
-	private String id;					// �ʼ�
-	private String pw;					// �ʼ�
-	private String name;				// �ʼ�
-	private String phone_num;			// �ʼ�
+	private String id;					// 필수
+	private String pw;					// 필수
+	private String name;				// 필수
+	private String phone_num;			// 필수
 	private String address;
 	private Date birth_date;
 	private String sex;
@@ -19,7 +19,7 @@ public class AccountVO {
 		this.account_type = type;
 	}
 	
-	public AccountVO(String id, String pw, String name, String phone_num, String addr, Date bDate, String sex, String job, String type) {
+	public AccountVO(String id, String pw, String name, String phone_num, String addr, Date bDate,String sex, String job, String type) {
 		this.id = id;
 		this.pw = pw;
 		this.name = name;

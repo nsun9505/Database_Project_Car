@@ -53,6 +53,12 @@ public class VehicleController extends HttpServlet {
 		try {
 			if(action.equals("/list.do")) {
 				nextPage = "/index.jsp";
+			} else if(action.equals("/addVehicle.do")) {
+				// 매물 등록 작업
+				String make = (String)request.getParameter("make");
+				System.out.println(make);
+				vehicleService.addVehicle();
+				nextPage = "/index.jsp";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);

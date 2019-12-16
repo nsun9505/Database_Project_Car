@@ -4,10 +4,10 @@
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 	<%
 		String isLogon = (String)session.getAttribute("isLogon");
-		String user_id = (String)session.getAttribute("user_id");
 	%>
 	
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+<c:set var="userInfo" value="${sessionScope.userInfo}"/>
 <!doctype html>
 <html>
 <head>
@@ -84,19 +84,22 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
   		</div>
   		<div class="Main-Menu">
   			<ul class="nav justify-content-end" style="height:100%">
-  				<%if(isLogon == null){ %>
- 				 <li class="nav-item">
-    				<a class="nav-link" style="height:100%" href="${contextPath}/login/loginForm.jsp">Login</a>
-  				</li>
-  				<%} else { %>
-  				<li class="nav-item"><a class="nav-link"><%=user_id %>님 반갑습니다.</a></li>
-  				<li class="nav-item">
-  					<a class="nav-link" style="height:100%" href="${contextPath}/account/modify.do">회원정보수정</a>
-  				</li>
-  				<li class="nav-item">
-    				<a class="nav-link" style="height:100%" href="${contextPath}/login/logout.jsp">Logout</a>
-  				</li>
-  				<%} %>
+  				<c:choose>
+  					<c:when test="${userInfo == null}">
+ 				 		<li class="nav-item">
+    						<a class="nav-link" style="height:100%" href="${contextPath}/login/loginForm.jsp">Login</a>
+  						</li>
+  					</c:when>
+  					<c:otherwise>
+  						<li class="nav-item"><a class="nav-link">${userInfo.name}님 반갑습니다.</a></li>
+  						<li class="nav-item">
+  							<a class="nav-link" style="height:100%" href="${contextPath}/modify/modifyInfoForm.jsp">회원정보수정</a>
+  						</li>
+  						<li class="nav-item">
+    						<a class="nav-link" style="height:100%" href="${contextPath}/login/logout.jsp">Logout</a>
+  						</li>
+  					</c:otherwise>
+  				</c:choose>
 			</ul>
   		</div>
  		<div class="Side-Menu">

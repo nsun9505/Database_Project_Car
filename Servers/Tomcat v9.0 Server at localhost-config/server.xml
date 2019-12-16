@@ -58,13 +58,13 @@
          Java HTTP Connector: /docs/config/http.html
          Java AJP  Connector: /docs/config/ajp.html
          APR (HTTP/AJP) Connector: /docs/apr.html
-         Define a non-SSL/TLS HTTP/1.1 Connector on port 8090
+         Define a non-SSL/TLS HTTP/1.1 Connector on port 9090
     -->
     <Connector connectionTimeout="20000" port="9090" protocol="HTTP/1.1" redirectPort="8443"/>
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
-               port="8090" protocol="HTTP/1.1"
+               port="9090" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="8443" />
     -->
@@ -104,7 +104,7 @@
     </Connector>
     -->
 
-    <!-- Define an AJP 1.3 Connector on port 8009 -->
+    <!-- Define an AJP 1.3 Connector on port 9091 -->
     <Connector port="9091" protocol="AJP/1.3" redirectPort="8443"/>
 
 
@@ -138,8 +138,6 @@
 
       <Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true">
 
-      
-
         <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
         <!--
@@ -151,8 +149,7 @@
              Note: The pattern used is equivalent to using pattern="common" -->
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
 
-      <Context docBase="Phase4" path="/Phase4" reloadable="true" source="org.eclipse.jst.jee.server:Phase4"/>
-      </Host>
+      <Context docBase="Phase4" path="/Phase4" reloadable="true" source="org.eclipse.jst.jee.server:Phase4"/></Host>
     </Engine>
   </Service>
 </Server>

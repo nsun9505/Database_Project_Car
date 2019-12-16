@@ -2,15 +2,12 @@
     pageEncoding="utf-8"%>
     <%
     	String checkId = (String)request.getAttribute("checkOkId");
-    	String account_type = (String)session.getAttribute("account_type");
-    	if(account_type == null)
-    		account_type = "C";
-    	//String account_type = (String)session.getAttribute("account_type");
     %>
     
     <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
+    <c:set var="userInfo" value="${sessionScope.userInfo }"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -181,11 +178,14 @@
 		<div class="form-group">
             <input type="button" class="btn btn-success btn-lg btn-block" value="register" onclick="return checkInfo()">
         </div>
-        <%if(account_type == null){ %> 
-        	<input type="hidden" name="account_type" value="C"> 
-        <%} else { %> 
-        	<input type="hidden" name="account_type" value="<%=account_type %>">
-        <%} %>
+       	<c:choose>
+       		<c:when test="${userInfo.account_type == null || userInfo.account_type eq 'C'}">
+       			<input type="hidden" name="account_type" value="C">
+       		</c:when>
+       		<c:otherwise>
+       			<input type="hidden" name="account_type" value="A">
+       		</c:otherwise>
+       	</c:choose>
     </form>
 	<div class="text-center">already account : <a href="${contextPath}/index.jsp">login window</a></div>
 </div>

@@ -27,14 +27,13 @@
     <Manager pathname="" />
     -->
     <Resource
-     name="jdbc/Oracle"
-     auth="Container"
-     type="javax.sql.DataSource"
-     driverClassName="oracle.jdbc.driver.OracleDriver"
-     url="jdbc:oracle:thin:@localhost:1600:xe"
-     username="knu"
-     password="comp322"
-     maxActive="50"
-     maxWait="-1"
-    />
+    name="jdbc/Oracle"
+    auth="Container"
+    type="javax.sql.DataSource"
+    driverClassName="oracle.jdbc.OracleDriver"
+    url="jdbc:oracle:thin:@localhost:1600:xe"
+    username="knu"
+    password="comp322"
+    maxActve="50"
+    maxWait="-1"/>
 </Context>

@@ -41,12 +41,12 @@ public class AccountDAO {
 		AccountVO dto = null;
 		try {
 			conn = dataSrc.getConnection();
-			pstmt = conn.prepareStatement(isExistAccountQuery);
+			pstmt = conn.prepareStatement(getAccountInfoQuery);
 			pstmt.setString(1, user_id);
 			pstmt.setString(2, user_pw);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next())
-				dto = new AccountVO(rs.getString(1), rs.getString(2), rs.getString(3));
+				dto = new AccountVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getDate(6), rs.getString(7), rs.getString(8), rs.getString(9));
 			else
 				dto = null;
 		} catch (SQLException e) {

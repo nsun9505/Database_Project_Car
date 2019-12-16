@@ -22,6 +22,7 @@ public class AccountService {
 		Date bDate = null;
 		if(strDate == null)
 			bDate = bDate.valueOf(strDate);
+		
 		AccountVO newAccount = new AccountVO(user_id, user_pw, name, phone_num, address, bDate, sex, job, type);
 		
 		ret = accountDAO.joinAccount(newAccount);
