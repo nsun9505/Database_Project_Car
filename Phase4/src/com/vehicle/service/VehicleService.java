@@ -13,6 +13,27 @@ public class VehicleService {
 		this.vehicleDAO = new VehicleDAO();
 	}
 	
+	public VehicleVO carInfo(int regnum) {
+		VehicleVO car = null;
+		
+		car = vehicleDAO.carInfo(regnum);
+		
+		return car;
+	}
+	
+	public boolean modifyVehicle(int regnum,String detailed_model_name,String model_year,int price,int mileage,String location,String fuel,String color,int engine_displacement,String transmission,String car_number,String sellerId) {		
+		boolean ret = false;
+		
+		VehicleVO newVehicle = new VehicleVO(detailed_model_name,model_year, price, mileage, location, fuel, color,engine_displacement, transmission, car_number, sellerId);
+		
+		ret = vehicleDAO.modifyVehicle(newVehicle,regnum);
+		
+		if(ret == true)
+			System.out.println("성공!!!!");
+		
+		return ret;
+	}
+	
 	public boolean addVehicle(String detailed_model_name,String model_year,int price,int mileage,String location,String fuel,String color,int engine_displacement,String transmission,String car_number,String sellerId) {		
 		boolean ret = false;
 		
