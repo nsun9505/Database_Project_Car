@@ -1,9 +1,15 @@
 package com.vehicle.service;
 
-public class VehicleService {
+import com.vehicle.dao.VehicleDAO;
 
-	public void addVehicle() {
-		// TODO Auto-generated method stub
+public class VehicleService {
+	VehicleDAO vehicleDAO;
+	
+	public VehicleService() {
+		vehicleDAO = new VehicleDAO();
+	}
+	
+	public void addVehicle() {		
 		
 	}
 
