@@ -152,10 +152,7 @@ public class VehicleController extends HttpServlet {
 				session.setAttribute("transList", transList);
 
 				nextPage = "/Vehicle/addVehicle.jsp";
-			}else if(action.equals("/modifyVehicle.do")) {
-				HttpSession session = request.getSession();
-				
-				
+			}else if(action.equals("/modifyVehicle.do")) {				
 				String car_number = (String) request.getParameter("car_number");
 				String detailed_model = (String) request.getParameter("detailed_model_name");
 				int engine = Integer.parseInt((String) request.getParameter("engine_displacement"));
@@ -168,13 +165,13 @@ public class VehicleController extends HttpServlet {
 				String location = (String) request.getParameter("location");
 				String sellerId = (String)request.getParameter("sellerID");
 
-				
+				//456은 임의로 정해둔 regnum
 				vehicleService.modifyVehicle(456,detailed_model, model_year, price, mileage, location, fuel, color,engine, transmission, car_number, sellerId);
 				
 				nextPage = "/index.jsp";
 			}else if(action.equals("/clickModify.do")) {
 				HttpSession session = request.getSession();
-				VehicleVO carInfo = vehicleService.carInfo(456);
+				VehicleVO carInfo = vehicleService.carInfo(456);//임의로 정해둠
 				session.setAttribute("carInfo", carInfo);
 				
 				ArrayList<String> fuelList = vehicleService.getFuelList();

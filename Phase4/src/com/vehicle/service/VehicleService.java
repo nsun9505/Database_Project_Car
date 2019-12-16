@@ -13,6 +13,7 @@ public class VehicleService {
 		this.vehicleDAO = new VehicleDAO();
 	}
 	
+	
 	public VehicleVO carInfo(int regnum) {
 		VehicleVO car = null;
 		

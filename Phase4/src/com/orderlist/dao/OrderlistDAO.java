@@ -30,6 +30,46 @@ public class OrderlistDAO {
 			e.printStackTrace();
 		}
 	}
+	
+	public boolean secretVehicle(int regnum, String id) {
+		int ret = 0;
+
+		String notOpenVehicleQuery = "insert into order_list values(?, ?, 'admin', sysdate)";
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(notOpenVehicleQuery);
+			pstmt.setInt(1, regnum);
+			pstmt.setString(2, id);
+			ret = pstmt.executeUpdate();
+			if (ret > 0) {
+				conn.commit();
+				return true;
+			}
+		} catch (SQLException e) {
+			System.err.println("[notopenVehicle] sql error : " + e.getMessage());
+		}
+		return false;
+	}
+	
+	public boolean openVehicle(int regnum) {
+		int ret = 0;
+		String openVehicleQuery = "delete from order_list where registration_number = ? AND buyer_id ='admin'";
+	
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(openVehicleQuery);
+			pstmt.setInt(1, regnum);
+			ret = pstmt.executeUpdate();
+			if (ret > 0) {
+				
+				conn.commit();
+				return true;
+			}
+		} catch (SQLException e) {
+			System.err.println("[openVehicle] sql error : " + e.getMessage());
+		}
+		return false;
+	}
 
 	public ArrayList<OrderlistVO> getCustomerOrderList(String id) {
 		ArrayList<OrderlistVO> list = new ArrayList<OrderlistVO>();

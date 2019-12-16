@@ -15,6 +15,8 @@ import javax.sql.DataSource;
 import com.account.vo.AccountVO;
 import com.vehicle.vo.VehicleVO;
 
+
+
 public class VehicleDAO {
 
 	private static final String getBasicVehicleInfoQuery = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color from ALL_VEHICLE_INFO where registration_number not in (select registration_number from order_list) order by registration_number desc";
@@ -315,4 +317,5 @@ public class VehicleDAO {
 	public boolean validCheck(String src, String regExp) {
 		return src.matches(regExp);
 	}
+
 }

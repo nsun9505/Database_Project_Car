@@ -2,7 +2,7 @@ package com.orderlist.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.util.*;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -24,6 +24,7 @@ import com.vehicle.dao.VehicleDAO;
 @WebServlet("/orderlist/*")
 public class OrderlistController extends HttpServlet {
 	OrderlistService orderlistService;
+	
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -85,7 +86,28 @@ public class OrderlistController extends HttpServlet {
 					System.out.println("개수 : "+orderlist.size());
 				}
 				nextPage = "/Orderlist/orderlist.jsp";
-			} else {
+			} else if(action.equals("/secretVehicle.do")) {
+				int regnum = 457;//regnum 임의로 정해둠
+				String sellerId;
+				boolean res=false;
+
+				HttpSession session = request.getSession();
+				AccountVO user = (AccountVO) session.getAttribute("userInfo");
+				sellerId = user.getId();
+				
+				res = orderlistService.secretVehicle(regnum, sellerId);
+				if(res==true)
+					System.out.println(regnum+" 비공개 성공");
+				nextPage = "/index.jsp";
+			}else if(action.equals("/openVehicle.do")) {
+				int regnum = 457; //regnum 임의로 정해둠
+				boolean res = false;
+				
+				res = orderlistService.openVehicle(regnum);
+				if(res==true)
+					System.out.println(regnum+" 공개 성공");
+				nextPage="/index.jsp";
+			}else {
 				nextPage = "/vehicle/list.do";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);

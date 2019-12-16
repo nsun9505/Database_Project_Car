@@ -1,6 +1,6 @@
 package com.orderlist.service;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import com.orderlist.dao.OrderlistDAO;
 import com.orderlist.vo.OrderlistVO;
@@ -10,6 +10,27 @@ public class OrderlistService {
 	
 	public OrderlistService() {
 		orderlistDao = new OrderlistDAO();
+	}
+	
+	public boolean openVehicle(int regnum) {
+		boolean ret = false;
+		
+		ret = orderlistDao.openVehicle(regnum);
+		if(ret == true)
+			System.out.println("성공!");
+		
+		return ret;
+	}
+	
+	public boolean secretVehicle(int regnum,String id) {
+		boolean ret = false;
+		
+		ret = orderlistDao.secretVehicle(regnum,id);
+		
+		if(ret == true)
+			System.out.println("성공!");
+		
+		return ret;
 	}
 
 	public ArrayList<OrderlistVO> getCustomerOrderList(String id) {
