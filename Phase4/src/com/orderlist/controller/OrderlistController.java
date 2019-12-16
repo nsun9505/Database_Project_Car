@@ -67,7 +67,7 @@ public class OrderlistController extends HttpServlet {
 			if(action.equals("/myOrderList")) {
 				HttpSession session = request.getSession();
 				AccountVO user = (AccountVO)session.getAttribute("userInfo");
-				
+				// commit test
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);
