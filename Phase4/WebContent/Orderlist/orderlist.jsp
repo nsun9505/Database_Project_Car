@@ -48,7 +48,6 @@
 							
 								</select>
 							</div>
-							
 						</form>
 					</c:if>
 					<h1></h1>
