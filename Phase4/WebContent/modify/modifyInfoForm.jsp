@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
     <%
-    	String checkId = (String)request.getAttribute("checkOkId");
     	String account_type = (String)session.getAttribute("account_type");
     	//String account_type = (String)session.getAttribute("account_type");
     %>

@@ -66,15 +66,24 @@ public class OrderlistController extends HttpServlet {
 		System.out.println("request : " + request.getRequestURL());
 		System.out.println(request.getHeaderNames());
 		try {
-			if(action.equals("/myOrderList")) {
+			if(action.equals("/myOrderList.do")) {
 				HttpSession session = request.getSession();
 				AccountVO user = (AccountVO)session.getAttribute("userInfo");
 				ArrayList<OrderlistVO> orderlist = null;
 				if(user.getAccount_type().equals("C")) {
-					
+					orderlist = orderlistService.getCustomerOrderList(user.getId());
 				}else {
-					
+					System.out.println(user.getId());
+					orderlist = orderlistService.getAdminOrderList(user.getId());
 				}
+				
+				if(orderlist != null) {
+					request.setAttribute("order_list", orderlist);
+					System.out.println("개수 : "+orderlist.size());
+				}
+				nextPage = "/Orderlist/orderlist.jsp";
+			} else {
+				nextPage = "/vehicle/list.do";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);

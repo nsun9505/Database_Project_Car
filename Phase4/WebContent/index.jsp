@@ -93,6 +93,14 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
   					<c:otherwise>
   						<li class="nav-item"><a class="nav-link">${userInfo.name}님 반갑습니다.</a></li>
   						<li class="nav-item">
+	  						<button class="nav-link" style="height:100%; background-color:white" onclick="orderListPopup()">
+  							<c:choose>
+	  							<c:when test="${userInfo.account_type eq 'C'}">${userInfo.name }님의 거래내역</c:when>
+  								<c:otherwise>모든 거래내역</c:otherwise>
+  							</c:choose>
+  							</button>
+  						</li>
+  						<li class="nav-item">
   							<button class="nav-link" style="height:100%; background-color:white" onclick="modifyPopup()">회원정보수정</button>
   						</li>
   						<li class="nav-item">
@@ -113,6 +121,13 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
 <script>
 function modifyPopup(){
 	var url = "/Phase4/modify/modifyInfoForm.jsp";
+	var name = "_blank";
+	var specs = "";
+	window.open(url, name, specs);
+}
+
+function orderListPopup(){
+	var url = "/Phase4/orderlist/myOrderList.do";
 	var name = "_blank";
 	var specs = "";
 	window.open(url, name, specs);
