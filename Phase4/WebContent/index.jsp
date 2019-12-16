@@ -93,7 +93,7 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
   					<c:otherwise>
   						<li class="nav-item"><a class="nav-link">${userInfo.name}님 반갑습니다.</a></li>
   						<li class="nav-item">
-  							<a class="nav-link" style="height:100%" href="${contextPath}/modify/modifyInfoForm.jsp">회원정보수정</a>
+  							<button class="nav-link" style="height:100%; background-color:white" onclick="modifyPopup()">회원정보수정</button>
   						</li>
   						<li class="nav-item">
     						<a class="nav-link" style="height:100%" href="${contextPath}/login/logout.jsp">Logout</a>
@@ -110,4 +110,12 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
   		</div>
 	</div>
 </body>
+<script>
+function modifyPopup(){
+	var url = "/Phase4/modify/modifyInfoForm.jsp";
+	var name = "_blank";
+	var specs = "";
+	window.open(url, name, specs);
+}
+</script>
 </html>

@@ -84,14 +84,24 @@ public class AccountController extends HttpServlet {
 			} else if(action.equals("/modifyUserInfo.do")) {
 				String id = (String)request.getParameter("id");
 				String pw = (String) request.getParameter("password");
-				String lname = (String) request.getParameter("name");
+				String name = (String) request.getParameter("name");
 				String phone = (String) request.getParameter("phoneNumber");
 				String addr = (String) request.getParameter("address");
 				String strDate = (String) request.getParameter("birthDate");
 				String gender = (String) request.getParameter("gender");
 				String job = (String) request.getParameter("job");
+				String account_type = (String)request.getParameter("account_type");
+				System.out.println(strDate);
+				AccountVO updateUserInfo = accountService.modifyUserInfo(id, pw, name, phone, addr, strDate, gender, job, account_type);
 				
-				nextPage = "/vehicle/list.do";
+				if(updateUserInfo != null) {
+					nextPage = "/modify/modifyUserInfoOk.jsp";
+					HttpSession session = request.getSession();
+					session.removeAttribute("userInfo");
+					session.setAttribute("userInfo", updateUserInfo);
+				}
+				else
+					nextPage ="/modify/modifyUserInfoFail.jsp";
 			} else if(action.equals("/idDupCheck.do")) {
 				String user_id = request.getParameter("id");
 				boolean ret = accountService.idDupCheck(user_id);
@@ -110,7 +120,7 @@ public class AccountController extends HttpServlet {
 				String gender = (String) request.getParameter("gender");
 				String job = (String) request.getParameter("job");
 				String account_type = (String) request.getParameter("account_type");
-				
+				System.out.println(strDate);
 				accountService.register(id, pw, fname+" "+lname, phone, addr, strDate, gender, job, account_type);
 				
 				nextPage = "/login/loginForm.jsp";

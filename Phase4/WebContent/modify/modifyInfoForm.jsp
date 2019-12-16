@@ -203,9 +203,11 @@
 		</div>
         <input type="hidden" name="account_type" value="${userInfo.account_type}">
         <div class="form-group" style="text-align:right">
+        	<c:if test="${userInfo.id ne 'admin'}">
         	<input type="button" class="btn btn-default" value="회원 탈퇴" onclick="goodBye()">
+        	</c:if>
         	<input type="button" class="btn btn-default" value="수정" onclick="validCheck()">
-        	<input type="button" class="btn btn-default" value="취소" onclick="cancel()">
+        	<input type="button" class="btn btn-default" value="뒤로 돌아가기" onclick="cancel()">
         </div>
     </form>
 </div>

@@ -128,4 +128,40 @@ public class AccountDAO {
 		}
 		return ret;
 	}
+	
+	public boolean modifyUserInfo(AccountVO dto) {
+		int ret = 0;
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(modifyAccountInfoQuery);
+			pstmt.setString(1, dto.getPw());
+			pstmt.setString(2, dto.getName());
+			pstmt.setString(3, dto.getPhone_num());
+			if (dto.getAddress() == null)
+				pstmt.setNull(4, Types.VARCHAR);
+			else
+				pstmt.setString(4, dto.getAddress());
+			if (dto.getBirth_date() == null)
+				pstmt.setNull(5, Types.DATE);
+			else
+				pstmt.setDate(5, dto.getBirth_date());
+			if (dto.getSex() == null)
+				pstmt.setNull(6, Types.VARCHAR);
+			else
+				pstmt.setString(6, dto.getSex());
+			if (dto.getJob() == null)
+				pstmt.setNull(7, Types.VARCHAR);
+			else
+				pstmt.setString(7, dto.getJob());
+			pstmt.setString(8, dto.getId());
+			ret = pstmt.executeUpdate();
+			if (ret == 1)
+				System.out.println("변경 성공");
+			conn.commit();
+			return true;
+		} catch (SQLException e) {
+			System.err.println("[modifyAccount method] sql error : " + e.getMessage());
+		}
+		return false;
+	}
 }

@@ -13,11 +13,17 @@ function check(re, what, message){
 }
 
 function goodBye(){
-	alert("진심 탈퇴???");
+	if(confirm("정말 회원 탈퇴를 하십니까????")){
+		modifyForm.action="/Phase4/account/withdrawalAccount.do";
+		modifyForm.submit();
+	} else {
+		alert("회원 탈퇴 취소!");
+	}
 }
 
 function cancel(){
-	alert("취소 누름~")
+	alert("회원 정보 수정을 취소합니다.");
+	self.close();
 }
 
 function validCheck(){
@@ -49,8 +55,15 @@ function validCheck(){
 		return;
 	}
 	
-	var address = document.getElementById("user_address");;
-	if(address.value.length != 0 && check(/^[a-zA-Z0-9\s]{0,100}$/, address, "주소(최대 100자)에는 특수문자 및 공백을 입력할 수 없습니다.") == false){
+	var address = document.getElementById("user_address");
+	var tempAddr = address.value;
+	if(tempAddr.length != 0 && tempAddr.replace(/\s/gi, "").length == 0){
+		alert("주소에 올바른 값을 넣어주세요.");
+		address.value = "";
+		address.focus();
+		return;
+	}
+	if(address.value.length != 0 && check(/^[a-zA-Z0-9\s]{0,100}$/, address, "주소(최대 100자)에는 특수문자[한글 포함]를 입력할 수 없습니다.") == false){
 		return;
 	}
 	modifyForm.submit();
