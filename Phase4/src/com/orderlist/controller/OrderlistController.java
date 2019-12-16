@@ -2,6 +2,7 @@ package com.orderlist.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import com.account.vo.AccountVO;
 import com.orderlist.service.OrderlistService;
+import com.orderlist.vo.OrderlistVO;
 
 /**
  * Servlet implementation class OrderlistController
@@ -67,7 +69,12 @@ public class OrderlistController extends HttpServlet {
 			if(action.equals("/myOrderList")) {
 				HttpSession session = request.getSession();
 				AccountVO user = (AccountVO)session.getAttribute("userInfo");
-				// commit test
+				ArrayList<OrderlistVO> orderlist = null;
+				if(user.getAccount_type().equals("C")) {
+					
+				}else {
+					
+				}
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);
