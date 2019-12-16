@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import com.account.vo.AccountVO;
 import com.vehicle.dao.VehicleDAO;
 import com.vehicle.service.VehicleService;
+import com.vehicle.vo.VehicleVO;
 
 /**
  * Servlet implementation class VehicleController
@@ -151,7 +152,40 @@ public class VehicleController extends HttpServlet {
 				session.setAttribute("transList", transList);
 
 				nextPage = "/Vehicle/addVehicle.jsp";
+			}else if(action.equals("/modifyVehicle.do")) {
+				HttpSession session = request.getSession();
+				
+				
+				String car_number = (String) request.getParameter("car_number");
+				String detailed_model = (String) request.getParameter("detailed_model_name");
+				int engine = Integer.parseInt((String) request.getParameter("engine_displacement"));
+				String model_year = (String) request.getParameter("model_year");
+				String fuel = (String) request.getParameter("fuel");
+				String color = (String) request.getParameter("color");
+				String transmission = (String) request.getParameter("transmission");
+				int price = Integer.parseInt((String) request.getParameter("price"));
+				int mileage = Integer.parseInt((String) request.getParameter("mileage"));		
+				String location = (String) request.getParameter("location");
+				String sellerId = (String)request.getParameter("sellerID");
 
+				
+				vehicleService.modifyVehicle(456,detailed_model, model_year, price, mileage, location, fuel, color,engine, transmission, car_number, sellerId);
+				
+				nextPage = "/index.jsp";
+			}else if(action.equals("/clickModify.do")) {
+				HttpSession session = request.getSession();
+				VehicleVO carInfo = vehicleService.carInfo(456);
+				session.setAttribute("carInfo", carInfo);
+				
+				ArrayList<String> fuelList = vehicleService.getFuelList();
+				ArrayList<String> transList = vehicleService.getTransList();
+				ArrayList<String> colorList = vehicleService.getColorList();
+
+				session.setAttribute("fuel_list", fuelList);
+				session.setAttribute("color_list", colorList);
+				session.setAttribute("trans_list", transList);
+				
+				nextPage = "/Vehicle/modifyVehicle.jsp";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);
