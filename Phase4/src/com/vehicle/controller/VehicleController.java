@@ -73,6 +73,7 @@ public class VehicleController extends HttpServlet {
 				car_number = vehicleService.checkCarnumber(car_number);
 				if (car_number == null) {
 					nextPage = "/Vehicle/addVehicleFail.jsp";
+					System.out.println("차량등록실패");
 				} else {
 					String make = (String) request.getParameter("make");
 					String model = (String) request.getParameter("model_name");

@@ -215,6 +215,11 @@ public class VehicleDAO {
 	public String getCarnumber(String carnum,int flag) {
 		ArrayList<String> list = new ArrayList<String>();
 		ResultSet rs = null;
+		
+		if (validCheck(carnum, regExpCarNum) == false) {
+			System.out.println("차량번호형식안맞음");
+			return null;
+		}
 
 		try {
 			pstmt = conn.prepareStatement("select Car_number from vehicle");
