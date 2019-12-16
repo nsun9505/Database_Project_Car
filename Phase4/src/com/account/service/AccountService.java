@@ -51,4 +51,10 @@ public class AccountService {
 		else
 			return null;
 	}
+
+	public boolean withdrawal(String user_id, String account_type) {
+		boolean ret = false;
+		ret = accountDAO.withdrawalAccount(user_id, account_type);
+		return ret;
+	}
 }

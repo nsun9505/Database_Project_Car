@@ -124,6 +124,10 @@ public class AccountController extends HttpServlet {
 				accountService.register(id, pw, fname+" "+lname, phone, addr, strDate, gender, job, account_type);
 				
 				nextPage = "/login/loginForm.jsp";
+			} else if(action.equals("/withdrawalAccount.do")) {
+				String user_id = (String)request.getParameter("id");
+				String account_type = (String)request.getParameter("account_type");
+				boolean ret = accountService.withdrawal(user_id, account_type);
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);

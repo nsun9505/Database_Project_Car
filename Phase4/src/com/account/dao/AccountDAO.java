@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -46,7 +49,8 @@ public class AccountDAO {
 			pstmt.setString(2, user_pw);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next())
-				dto = new AccountVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getDate(6), rs.getString(7), rs.getString(8), rs.getString(9));
+				dto = new AccountVO(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
+						rs.getDate(6), rs.getString(7), rs.getString(8), rs.getString(9));
 			else
 				dto = null;
 		} catch (SQLException e) {
@@ -96,7 +100,7 @@ public class AccountDAO {
 			int res = pstmt.executeUpdate();
 			if (res == 1) {
 				conn.commit();
-				return true;	
+				return true;
 			}
 		} catch (SQLException e) {
 			System.err.println("sql error : " + e.getMessage());
@@ -117,18 +121,18 @@ public class AccountDAO {
 			conn = dataSrc.getConnection();
 			pstmt = conn.prepareStatement("select count(id) from account where id=?");
 			pstmt.setString(1, user_id);
-			
+
 			ResultSet rs = pstmt.executeQuery();
-			if(rs.next())
-				if(rs.getInt(1) == 0)
+			if (rs.next())
+				if (rs.getInt(1) == 0)
 					ret = true;
-			
-		}catch(SQLException e) {
-			System.err.println("[idDupCheck()] sql error : "+e.getMessage());
+
+		} catch (SQLException e) {
+			System.err.println("[idDupCheck()] sql error : " + e.getMessage());
 		}
 		return ret;
 	}
-	
+
 	public boolean modifyUserInfo(AccountVO dto) {
 		int ret = 0;
 		try {
@@ -162,6 +166,41 @@ public class AccountDAO {
 		} catch (SQLException e) {
 			System.err.println("[modifyAccount method] sql error : " + e.getMessage());
 		}
+		return false;
+	}
+
+	public boolean withdrawalAccount(String user_id) {
+
+		return false;
+	}
+
+	public boolean withdrawalAccount(String id, String account_type) {
+/*		try {
+			VehicleDAO VDao = new VehicleDAO();
+			OrderListDAO ODao = new OrderListDAO();
+			if (account_type.equals("A")) {
+				ODao.updateSellerId(id);
+				VDao.updateSellerId(id);
+			} else {
+				ArrayList<Integer> regNumList = ODao.getRegNumsById(id, account_type);
+				if (regNumList.size() > 0) {
+					ODao.deleteOrderListByBuyerId(id);
+					for (int i = 0; i < regNumList.size(); i++)
+						VDao.deleteVehicle(regNumList.get(i));
+				}
+			}
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("delete from account where id = ?");
+			pstmt.setString(1, id);
+			int ret = pstmt.executeUpdate();
+			if (ret == 1)
+				System.out.println("ȸ��Ż�� �Ϸ�!");
+			conn.commit();
+			return true;
+
+		} catch (SQLException e) {
+			System.err.println("[withdrawalAccount] sql error : " + e.getMessage());
+		}*/
 		return false;
 	}
 }
