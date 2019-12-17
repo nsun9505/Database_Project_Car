@@ -7,7 +7,10 @@
 <%
 		String isLogon = (String)session.getAttribute("isLogon");
 		HashMap<String, ArrayList<String>> conditions = (HashMap<String, ArrayList<String>>) session.getAttribute("conditions");
-	%>
+%>
+<c:if test=${sessionScope.init eq null }>
+<jsp:forward page="${contextPath}/vehicle/list.do"></jsp:forward>
+</c:if>
 
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="userInfo" value="${sessionScope.userInfo}" />
@@ -160,7 +163,7 @@ html, body, .grid-container {
 						<c:forEach items="${category_list }" var="category">
 							<div>
 								<label><input type="checkbox" value="${category}"
-									name="category_check">${category }</label>
+									name="change_category">${category }</label>
 							</div>
 						</c:forEach>
 					</div>
@@ -170,7 +173,7 @@ html, body, .grid-container {
 				<c:when test="${modelList eq null && detailedList eq null }">
 					<div>
 						<label for="select_make_id">Make</label> <select id="select_make"
-							onchange="changeMake();">
+							onchange="change_make();">
 							<option value="">Make</option>
 							<c:forEach items="${make_list }" var="make">
 								<option value="${make }">${make }</option>
@@ -181,7 +184,7 @@ html, body, .grid-container {
 				<c:when test="${model_list ne null && detailed_list eq null }">
 					<div>
 						<label for="select_model_id">Model</label> <select
-							id="select_model" onchange="changeModel();">
+							id="select_model" onchange="change_model();">
 							<option value="">Model</option>
 							<c:forEach items="${model_list }" var="model">
 								<option value="${model}">${model}</option>
@@ -192,7 +195,7 @@ html, body, .grid-container {
 				<c:when test="${make_list ne null && model_list ne null }">
 					<div>
 						<label for="select_detailed_id">Model</label> <select
-							id="select_detailed_id" onchange="changedetailed();">
+							id="select_detailed_id" onchange="change_detailed();">
 							<option value="">Model</option>
 							<c:forEach items="${detailed_list }" var="detailed">
 								<option value="${detailed}">${detailed}</option>
@@ -200,7 +203,7 @@ html, body, .grid-container {
 						</select>
 					</div>
 				</c:when>
-			</c:choose>
+			</c:choose><br>
 
 			<label for="model_year">Model Year</label>
 			<div id="model_year">
@@ -218,23 +221,60 @@ html, body, .grid-container {
 						<option value="${i}">${i}년</option>
 					</c:forEach>
 				</select>까지
-			</div>
+			</div><br>
 			
 			<label for="price_div">Price</label>
 			<div id="price_div">
 				<select name="min_price" onchange="change_min_price(this)">
 					<option value="">선택</option>
-					<c:forEach var="i" begin="500" end="10000" step="500">
+					<c:forEach var="i" begin="${min_price }" end="${max_price }" step="500">
 						<option value="${i}">${i}만원</option>
 					</c:forEach>
 				</select>부터<br> 
 				<select name="max_price" onchange="change_max_price(this)">
-					<c:forEach var="i" begin="500" end="10000" step="500">
+					<option value="">선택</option>
+					<c:forEach var="i" begin="${min_price }" end="${max_price }" step="500">
 						<option value="${i}">${i}만원</option>
 					</c:forEach>
 				</select>까지
+			</div><br>
+			
+			<label for="location_div">Location</label>
+			<div id="location_div">
+				<select name="select_color" onchange="change_loca()">
+				<c:forEach items="${locations_list }" var="loca">
+					<option value="${loca }">${loca }</option>
+				</c:forEach>
+				</select>
 			</div>
-
+			
+			<label for="color_div">Color</label>
+			<div id="color_div">
+				<select name="select_color" onchange="change_color()">
+				<c:forEach items="${color_list }" var="color">
+					<option value="${color }">${color }</option>
+				</c:forEach>
+				</select>
+			</div>
+			
+			<label for="fuel_div">Feul</label>
+			<div id="fuel_div">
+				<select name="select_color" onchange="change_fuel()">
+				<c:forEach items="${fuel_list }" var="fuel">
+					<option value="${fuel }">${fuel }</option>
+				</c:forEach>
+				</select>
+			</div>
+			
+			<label for="transmission_div">Feul</label>
+			<div id="transmission_div">
+				<select name="select_transmission" onchange="change_transmission()">
+				<c:forEach items="${transmission_list }" var="trans">
+					<option value="${trans }">${trans }</option>
+				</c:forEach>
+				</select>
+			</div>
+			
 			<div class="Content"></div>
 		</div>
 </body>
@@ -252,5 +292,22 @@ function orderListPopup(){
 	var specs = "";
 	window.open(url, name, specs);
 }
+
+function change_category(){
+	
+}
+
+function change_make(){
+	
+}
+
+function change_model(){
+	
+}
+
+function change_model(){
+	
+}
+
 </script>
 </html>
