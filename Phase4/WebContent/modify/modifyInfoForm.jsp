@@ -13,7 +13,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>회원가입</title>
+<title>회원 정보 수정</title>
 <script type="text/javascript" src="<c:url value="/resource/js/jquery-3.4.1.js"/>"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
@@ -119,8 +119,8 @@
 <c:otherwise>
 <div class="signup-form">
 	<form action="${contextPath}/account/modifyUserInfo.do" method="post" name="modifyForm">
-		<h2>회원가입</h2>
-		<p class="hint-text" style="font-size:10px;">아이디 : 5~15자의 영문 대소문자와 숫자로만 입력</p>
+		<h2>회원 정보 수정</h2>
+		<p class="hint-text" style="font-size:10px;"></p>
         <div class="form-group">
         	<label for="user_id">ID</label>
 			<input type="text" class="form-control" id="user_id" name="id" value="${userInfo.id }" readonly>       	

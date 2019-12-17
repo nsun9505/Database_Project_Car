@@ -67,8 +67,45 @@ public class VehicleController extends HttpServlet {
 		System.out.println(action);
 		try {
 			if (action.equals("/list.do")) {
+				HttpSession session = request.getSession();
+				if(session.getAttribute("init") == null) {
+					session.setAttribute("init", true);
+					session.setAttribute("make_list", vehicleService.getMakeList());
+					session.setAttribute("category_list", vehicleService.getCategoryList());
+					session.setAttribute("transmission_list", vehicleService.getTransList());
+					session.setAttribute("feul_list", vehicleService.getFuelList());
+					session.setAttribute("location_list", vehicleService.getLocationList());
+					session.setAttribute("color_list", vehicleService.getColorList());
+				} else {
+					
+				}
 				nextPage = "/index.jsp";
-			} else if (action.equals("/addVehicle.do")) {
+			} else if(action.equals("/selectCategory.do")) {
+			 
+			} else if(action.equals("/selectMake.do")) {
+				
+			} else if(action.equals("/selectModel.do")) {
+				
+			} else if(action.equals("/selectDetailed.do")) {
+				
+			} else if(action.equals("/selectCategory.do")) {
+				
+			} else if(action.equals("/selectModelYear.do")) {
+				
+			} else if(action.equals("/selectMileage.do")) {
+				
+			} else if(action.equals("/selectPrice.do")) {
+				
+			} else if(action.equals("/selectLocation.do")) {
+				
+			} else if(action.equals("/selectColor.do")) {
+				
+			} else if(action.equals("/selectFuel.do")) {
+				
+			} else if(action.equals("/selectTransmission.do")) {
+				
+			}
+			else if (action.equals("/addVehicle.do")) {
 				// 매물 등록 작업
 				String car_number = (String) request.getParameter("car_number");
 				car_number = vehicleService.checkCarnumber(car_number);
