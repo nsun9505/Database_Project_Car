@@ -1,6 +1,7 @@
 package com.orderlist.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -30,7 +31,110 @@ public class OrderlistDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public ArrayList<String> recommendCar(String sex, Date Bdate) {
+		ArrayList<String> list = new ArrayList<String>();
+		ResultSet rs = null;
+		String year=null;
+		if(Bdate!=null)
+			year = Bdate.toString().substring(0, 4);
+		String query = "";
+		int year_num=0;
+		if (year != null) {
+			year_num = Integer.parseInt(year);
+			if (year_num >= 1990 && year_num <= 2000) {
+				year_num = 1990;
+			} else if (year_num >= 1980 && year_num < 1990) {
+				year_num = 1980;
+			} else if (year_num >= 1970 && year_num < 1980) {
+				year_num = 1970;
+			} else if (year_num >= 1960 && year_num < 1970) {
+				year_num = 1960;
+			} else if (year_num < 1960) {
+				year_num = 1950;
+			}
+		}
+		if (sex == null) {
+			if (Bdate == null) {
+				query = "select model_name from (select count(*) c,model_name from sold_car s "
+						+ "group by model_name) " + "where c = (select MAX(c) " + " from (select count(*) c,model_name"
+						+ " from sold_car s " + "group by model_name))";
+			} else if (year_num == 1950) {
+				query = "select model_name\r\n" + "from (select count(*) c, model_name\r\n"
+						+ "      from sold_car s, account a\r\n" + "      where  TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < "
+						+ year_num + "\r\n" + "        and s.buyer_id = a.id\r\n" + "      group by model_name)\r\n"
+						+ "where c = (select MAX(c)\r\n" + "           from (select count(*) c, model_name\r\n"
+						+ "                 from sold_car s, account a\r\n"
+						+ "                 where TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < " + year_num + "\r\n"
+						+ "                    and s.buyer_id = a.id\r\n" + "                 group by model_name))";
+			} else {
+				query = "select model_name\r\n" + "from (select count(*) c, model_name\r\n"
+						+ "      from sold_car s, account a\r\n" + "      where TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) >= "
+						+ year_num + "\r\n" + "        and TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < " + (year_num + 10)
+						+ "\r\n" + "        and s.buyer_id = a.id\r\n" + "      group by model_name)\r\n"
+						+ "where c = (select MAX(c)\r\n" + "           from (select count(*) c, model_name\r\n"
+						+ "                 from sold_car s, account a\r\n"
+						+ "                 where TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) >= " + year_num + "\r\n"
+						+ "                    and TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < " + (year_num + 10) + "\r\n"
+						+ "                    and s.buyer_id = a.id\r\n" + "                 group by model_name))";
+			}
+		} else {
+			if (Bdate == null) {
+				query = "select model_name " + "from (select count(*) c, model_name" + "from sold_car s, account a"
+						+ "where a.sex = 'F'" + "and s.buyer_id = a.id" + "group by model_name)"
+						+ "where c = (select MAX(c)" + " from (select count(*) c, model_name"
+						+ "from sold_car s, account a" + "where a.sex = '" + sex + "'" + "and s.buyer_id = a.id"
+						+ "group by model_name))";
+			} else if (year_num == 1950) {
+				query = "select model_name\r\n" + 
+						"from (select count(*) c, model_name\r\n" + 
+						"      from sold_car s, account a\r\n" + 
+						"      where  TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < "+year_num+"\r\n" + 
+						"        and a.sex = '"+sex+"' \r\n" + 
+						"        and s.buyer_id = a.id\r\n" + 
+						"        group by model_name)\r\n" + 
+						"where c = (select MAX(c)\r\n" + 
+						"           from (select count(*) c, model_name\r\n" + 
+						"                 from sold_car s, account a\r\n" + 
+						"                 where TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < "+year_num+"\r\n" + 
+						"                    and a.sex = '"+sex+"' \r\n" + 
+						"                    and s.buyer_id = a.id\r\n" + 
+						"                 group by model_name))";
+			} else {
+				query = "select model_name\r\n" + 
+						"from (select count(*) c, model_name\r\n" + 
+						"      from sold_car s, account a\r\n" + 
+						"      where TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) >= "+year_num+" \r\n" + 
+						"        and TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < "+(year_num+10)+"\r\n" + 
+						"        and a.sex = '"+sex+"' \r\n" + 
+						"        and s.buyer_id = a.id\r\n" + 
+						"        group by model_name)\r\n" + 
+						"where c = (select MAX(c)\r\n" + 
+						"           from (select count(*) c, model_name\r\n" + 
+						"                 from sold_car s, account a\r\n" + 
+						"                 where TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) >= "+year_num+" \r\n" + 
+						"                    and TO_NUMBER(TO_CHAR(a.Bdate,'YYYY')) < "+(year_num+10)+"\r\n" + 
+						"                    and a.sex = '"+sex+"' \r\n" + 
+						"                    and s.buyer_id = a.id\r\n" + 
+						"                 group by model_name))";
+			}
+		}
+
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			while (rs.next())
+				list.add(rs.getString(1));
+
+		} catch (SQLException e) {
+			System.err.println("[recommend] sql error " + e.getMessage());
+		}
+
+		return list;
+	}
+
 	public boolean secretVehicle(int regnum, String id) {
 		int ret = 0;
 
@@ -50,18 +154,18 @@ public class OrderlistDAO {
 		}
 		return false;
 	}
-	
+
 	public boolean openVehicle(int regnum) {
 		int ret = 0;
 		String openVehicleQuery = "delete from order_list where registration_number = ? AND buyer_id ='admin'";
-	
+
 		try {
 			conn = dataSrc.getConnection();
 			pstmt = conn.prepareStatement(openVehicleQuery);
 			pstmt.setInt(1, regnum);
 			ret = pstmt.executeUpdate();
 			if (ret > 0) {
-				
+
 				conn.commit();
 				return true;
 			}
@@ -77,7 +181,7 @@ public class OrderlistDAO {
 		try {
 			conn = dataSrc.getConnection();
 			pstmt = conn.prepareStatement("select * from order_list where buyer_id=?");
-			pstmt.setString(1,id);
+			pstmt.setString(1, id);
 			rs = pstmt.executeQuery();
 
 			while (rs.next())
@@ -101,14 +205,14 @@ public class OrderlistDAO {
 	public ArrayList<OrderlistVO> getAdminOrderList(String id) {
 		ArrayList<OrderlistVO> list = new ArrayList<OrderlistVO>();
 		ResultSet rs = null;
-		
+
 		try {
 			conn = dataSrc.getConnection();
 			pstmt = conn.prepareStatement("select * from order_list where buyer_id != 'admin' order by sell_date");
 			rs = pstmt.executeQuery();
-			while (rs.next()) 
+			while (rs.next())
 				list.add(new OrderlistVO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4)));
-			
+
 		} catch (SQLException e) {
 			System.err.println("[getAdminOrderList]sql error : " + e.getMessage());
 		} finally {

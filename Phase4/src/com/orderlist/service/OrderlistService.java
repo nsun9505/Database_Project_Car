@@ -1,5 +1,8 @@
 package com.orderlist.service;
 
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 import com.orderlist.dao.OrderlistDAO;
@@ -10,6 +13,14 @@ public class OrderlistService {
 	
 	public OrderlistService() {
 		orderlistDao = new OrderlistDAO();
+	}
+	
+	public ArrayList<String> recommendCar(String sex, Date Bdate) {
+		ArrayList<String> car = null;
+		
+		car = orderlistDao.recommendCar(sex,Bdate);
+		
+		return car;
 	}
 	
 	public boolean openVehicle(int regnum) {

@@ -189,7 +189,6 @@ public class VehicleController extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 }

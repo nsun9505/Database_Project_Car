@@ -119,6 +119,15 @@ public class OrderlistController extends HttpServlet {
 					request.setAttribute("resultString", orderlistService.getIntakeString(type, make, year, month));
 				}
 				nextPage = "/Orderlist/orderlist.jsp";
+			}else if(action.equals("/recommendVehicle.do")) {
+				HttpSession session = request.getSession();
+				ArrayList<String> recommendedCar = null;
+				AccountVO user = (AccountVO) session.getAttribute("userInfo");
+				
+				recommendedCar = orderlistService.recommendCar(user.getSex(), user.getBirth_date());
+
+				session.setAttribute("recommend", recommendedCar);
+				nextPage = "/Orderlist/recommendedVehicleForm.jsp";
 			}else {
 				nextPage = "/vehicle/list.do";
 			}
