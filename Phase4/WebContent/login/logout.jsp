@@ -10,7 +10,7 @@
 <body>
 	<%
     	session.invalidate();
-    	pageContext.forward("/vehicle/list.do");
+    	pageContext.forward("/login/loginForm.jsp");
     %>
 </body>
 </html>

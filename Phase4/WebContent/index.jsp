@@ -8,7 +8,7 @@
 		String isLogon = (String)session.getAttribute("isLogon");
 		HashMap<String, ArrayList<String>> conditions = (HashMap<String, ArrayList<String>>) session.getAttribute("conditions");
 %>
-<c:if test=${sessionScope.init eq null }>
+<c:if test="${sessionScope.init eq null }">
 <jsp:forward page="${contextPath}/vehicle/list.do"></jsp:forward>
 </c:if>
 
