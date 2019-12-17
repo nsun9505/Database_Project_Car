@@ -105,4 +105,11 @@ public class OrderlistService {
 		}
 		return null;
 	}
+
+	public ArrayList<String> secretVehicleList() {
+		
+		ArrayList<String> regnum = orderlistDao.secretVehicleList();
+		
+		return regnum;
+	}
 }

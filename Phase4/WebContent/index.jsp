@@ -9,7 +9,7 @@
 %>
 
 <c:if test="${sessionScope.init eq null }">
-	<jsp:forward page="/vehicle/list.do"></jsp:forward>
+<jsp:forward page="${contextPath}/vehicle/list.do"></jsp:forward>
 </c:if>
 
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
