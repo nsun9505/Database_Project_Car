@@ -8,11 +8,9 @@
 	String isLogon = (String) session.getAttribute("isLogon");
 %>
 
-<c:if test="${sessionScope.init eq null }">
-<jsp:forward page="${contextPath}/vehicle/list.do"></jsp:forward>
-</c:if>
-
-<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+  <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <c:set var="userInfo" value="${sessionScope.userInfo}" />
 <c:set var="category_list" value="${sessionScope.category_list}" />
 <c:set var="make_list" value="${sessionScope.make_list}" />
@@ -110,9 +108,6 @@ html, body, .grid-container {
 <body>
 	<div class="grid-container">
 		<div class="E1">
-			<form name="transferForm" method="post">
-				<input type="text" value="" name="condition" id="setCondition">
-			</form>
 		</div>
 		<div class="E2"></div>
 		<div class="E3"></div>
@@ -159,6 +154,7 @@ html, body, .grid-container {
 				</c:choose>
 			</ul>
 		</div>
+		<form name="transferForm">
 		<div class="Side-Menu">
 			<div>
 				<c:if test="${category_list ne null }">
@@ -299,35 +295,30 @@ html, body, .grid-container {
 				</c:forEach>
 			</div>
 		</div>
+		<input tpye="hidden" name="condition" id="condition_id">
+		</form>
 		<div class="Content">
 		
 		<table class="table table-hover">
   		<thead>
    			<tr>
     	  	<th scope="col">Regnum</th>
-      		<th scope="col">First</th>
-      		<th scope="col">Last</th>
-      		<th scope="col">Handle</th>
+      		<th colspan="2">차량상제 정보</th>
+      		<th scope="col">가격</th>
     		</tr>
   		</thead>
   		<tbody>
-    	<tr>
-      	<th scope="row">1</th>
-      	<td>Mark</td>
-      	<td>Otto</td>
-      	<td>@mdo</td>
-    	</tr>
-    	<tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td colspan="2">Larry the Bird</td>
-      <td>@twitter</td>
-    </tr>
+  		
+  		<c:forEach items="${vehicle_list }" var="vehicle">
+    		<tr>
+      		<th scope="row">${vehicle.regNum }</th>
+      		<td colspan="2">
+      			<div>${vehicle.detailed_model_name }</div>
+      			<div>${vehicle.mileage}</div>
+      		</td>
+      		<td>${vehicle.price }</td>
+    		</tr>
+    	</c:forEach>
   </tbody>
 </table>
 		</div>
@@ -350,9 +341,10 @@ html, body, .grid-container {
 
 	function change_category(checked) {
 		if(selected.value != "X"){
+			alert()
 			transferForm.condition.value = selected.options[selected.selectedIndex].value;
 			transferForm.action = "/Phase4/vehicle/selectCategory.do"
-				transferFrom.submit();
+			transferFrom.submit();
 		}
 	}
 	function change_make(selected) {
@@ -412,7 +404,7 @@ html, body, .grid-container {
 		if(selected.value != "X"){
 			transferForm.condition.value = selected.options[selected.selectedIndex].value;
 			transferForm.action = "/Phase4/vehicle/selectMinPrice.do"
-				transferFrom.submit();
+				transferForm.submit();
 		}
 	}
 	
@@ -425,9 +417,10 @@ html, body, .grid-container {
 	}
 	
 	function change_location(checked){
+		document.getElementById("")
 			transferForm.condition.value = selected.options[selected.selectedIndex].value;
 			transferForm.action = "/Phase4/vehicle/selectLocation.do"
-				transferFrom.submit();
+			transferFrom.submit();
 	}
 	function change_color(checked){
 			transferForm.condition.value = selected.options[selected.selectedIndex].value;
@@ -436,8 +429,7 @@ html, body, .grid-container {
 	}
 	
 	function change_fuel(checked){
-			transferForm.condition.value = checked.value;
-			alert(ceheck.value);
+ 			transferForm.condition.value = checked.value;
 			transferForm.action = "/Phase4/vehicle/selectFuel.do"
 			transferFrom.submit();
 	}

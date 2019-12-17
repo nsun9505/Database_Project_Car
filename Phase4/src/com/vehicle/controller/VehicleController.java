@@ -67,7 +67,6 @@ public class VehicleController extends HttpServlet {
 		System.out.println(action);
 		try {
 			if (action.equals("/init.do")) {
-				if (request.getSession().isNew()) {
 					HttpSession session = request.getSession();
 					session.setAttribute("init", true);
 					session.setAttribute("make_list", vehicleService.getMakeList());
@@ -84,7 +83,6 @@ public class VehicleController extends HttpServlet {
 					session.setAttribute("max_price", 10000);
 					session.setAttribute("vehicle_list", vehicleService.getInitList());
 					session.setAttribute("conditions", new HashMap<String, ArrayList<String>>());
-				}
 				nextPage = "/index.jsp";
 			} else if (action.equals("/combinationQuery.do")) {
 				HttpSession session = request.getSession();

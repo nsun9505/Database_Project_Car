@@ -88,6 +88,8 @@ public class AccountController extends HttpServlet {
 				String phone = (String) request.getParameter("phoneNumber");
 				String addr = (String) request.getParameter("address");
 				String strDate = (String) request.getParameter("birthDate");
+				if(strDate.length() == 0)
+					strDate = null;
 				String gender = (String) request.getParameter("gender");
 				String job = (String) request.getParameter("job");
 				String account_type = (String)request.getParameter("account_type");
