@@ -68,6 +68,7 @@ public class AccountDAO {
 
 	public boolean joinAccount(AccountVO newAccount) {
 		try {
+			System.out.println("joinAccount");
 			conn = dataSrc.getConnection();
 			pstmt = conn.prepareStatement(insertAccountQuery);
 			pstmt.setString(1, newAccount.getId());

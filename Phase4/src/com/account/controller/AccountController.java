@@ -117,12 +117,12 @@ public class AccountController extends HttpServlet {
 				String phone = (String) request.getParameter("phoneNumber");
 				String addr = (String) request.getParameter("address");
 				String strDate = (String) request.getParameter("birthDate");
+				if(strDate.length() == 0)
+					strDate = null;
 				String gender = (String) request.getParameter("gender");
 				String job = (String) request.getParameter("job");
 				String account_type = (String) request.getParameter("account_type");
-				System.out.println(strDate);
 				accountService.register(id, pw, fname+" "+lname, phone, addr, strDate, gender, job, account_type);
-				
 				nextPage = "/login/loginForm.jsp";
 			} else if(action.equals("/withdrawalAccount.do")) {
 				String user_id = (String)request.getParameter("id");
@@ -133,7 +133,8 @@ public class AccountController extends HttpServlet {
 			dispatcher.forward(request, response);
 			return;
 		}catch(Exception e) {
-			System.out.println("[error] : "+e.getMessage());
+			System.out.println("[register.do] error : "+e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }

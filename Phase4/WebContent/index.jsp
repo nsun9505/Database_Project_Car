@@ -137,7 +137,7 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
  			<div>
  				<c:forEach items="${category_list }" var="category">
  					<div>
-		 				<input type="checkbox" value="${category}" name="category_check">
+		 				<label><input type="checkbox" value="${category}" name="category_check">${category }</label>
 		 			</div>
  				</c:forEach>
  			</div>
@@ -178,6 +178,84 @@ html, body, .grid-container { height: 1200px; width:1400px; margin: auto; }
  				</div>
  			</c:when>
  		</c:choose>
+  		
+  		<label for="model_year">Model Year</label>
+  		<div id="model_year">
+  			<c:choose>
+  			<c:when test="${min_model_year eq null && max_model_year eq null}">
+  				<select name="min_model_year" onchange="change_min_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>
+  				<select name="min_model_month" onchange="change_min_month(this)">
+  					<option value="">월</option>
+  					<c:forEach var="i" begin="1" end="12" step="1">
+  						<option value="${i}">${i}월</option>
+  					</c:forEach>
+  				</select>부터<br>
+  				<select name="max_model_year" onchange="change_max_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>
+  				<select name="max_model_month" onchange="change_max_month(this)">
+  					<option value="">월</option>
+  					<c:forEach var="i" begin="1" end="12" step="1">
+  						<option value="${i}">${i}월</option>
+  					</c:forEach>
+  				</select>까지
+  			</c:when>
+  			<!-- min model year ok -->
+  			<c:when test="${min_model_year ne null && max_model_year eq null}">
+  				<select name="min_model_year" onchange="change_min_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="${min_model_year }" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>부터<br>
+  				<select name="max_model_year" onchange="change_max_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>까지
+  			</c:when>
+  			<!-- max model year ok -->
+  			<c:when test="${min_model_year eq null && max_model_year eq null}">
+  				<select name="min_model_year" onchange="change_min_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>부터<br>
+  				<select name="max_model_year" onchange="change_max_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>까지
+  			</c:when>
+  			<!-- min and max model ok -->
+  			<c:when test="${min_model_year eq null && max_model_year eq null}">
+  				<select name="min_model_year" onchange="change_min_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>부터<br>
+  				<select name="max_model_year" onchange="change_max_year(this)">
+  					<option value="">년</option>
+  					<c:forEach var="i" begin="1980" end="2019" step="1">
+  						<option value="${i}">${i}년</option>
+  					</c:forEach>
+  				</select>까지
+  			</c:when>
+  			</c:choose>
+  		</div>
+  		
   		</div>
   		
   		<div class="Content">
