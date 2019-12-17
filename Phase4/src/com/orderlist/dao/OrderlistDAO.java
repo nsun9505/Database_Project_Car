@@ -282,7 +282,53 @@ public class OrderlistDAO {
 				System.err.println("[getCostSum]sql error : " + e.getMessage());
 			}
 		}
+		
 
 		return sum;
+	}
+	public void updateSellerId(String id) {
+		int ret = 0;
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("update order_list set seller_id='admin' where seller_id=?");
+			pstmt.setString(1, id);
+			ret = pstmt.executeUpdate();
+			conn.commit();
+		} catch (SQLException e) {
+			System.err.println("");
+		}
+	}
+	
+	public ArrayList<Integer> getRegNumsById(String id, String account_type) {
+		ArrayList<Integer> regnums = new ArrayList<Integer>();
+		ResultSet rs = null;
+		String getRegNumbersByIdQuery = "select registration_number from order_list ";
+		if (account_type.equals("C"))
+			getRegNumbersByIdQuery += " where buyer_id=?";
+		else
+			getRegNumbersByIdQuery += " where seller_id=?";
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(getRegNumbersByIdQuery);
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			while (rs.next())
+				regnums.add(rs.getInt(1));
+		} catch (SQLException e) {
+			System.err.println("[getRegNumsByBuyerId] sql error : " + e.getMessage());
+		}
+		return regnums;
+	}
+	
+	public void deleteOrderListByBuyerId(String buyer_id) {
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("update order_list set seller_id='withdrawal' where buyer_id=?");
+			pstmt.setString(1, buyer_id);
+			int ret = pstmt.executeUpdate();
+			conn.commit();
+		} catch (SQLException e) {
+			System.err.println("[deleteOrderListByRegNum] sql error : " + e.getMessage());
+		}
 	}
 }

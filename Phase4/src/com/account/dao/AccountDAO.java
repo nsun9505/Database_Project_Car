@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Scanner;
 
 import javax.naming.Context;
@@ -14,6 +14,8 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import com.account.vo.AccountVO;
+import com.orderlist.dao.OrderlistDAO;
+import com.vehicle.dao.VehicleDAO;
 
 public class AccountDAO {
 	private static final String insertAccountQuery = "insert into account values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -176,9 +178,9 @@ public class AccountDAO {
 	}
 
 	public boolean withdrawalAccount(String id, String account_type) {
-/*		try {
+		try {
 			VehicleDAO VDao = new VehicleDAO();
-			OrderListDAO ODao = new OrderListDAO();
+			OrderlistDAO ODao = new OrderlistDAO();
 			if (account_type.equals("A")) {
 				ODao.updateSellerId(id);
 				VDao.updateSellerId(id);
@@ -186,22 +188,23 @@ public class AccountDAO {
 				ArrayList<Integer> regNumList = ODao.getRegNumsById(id, account_type);
 				if (regNumList.size() > 0) {
 					ODao.deleteOrderListByBuyerId(id);
-					for (int i = 0; i < regNumList.size(); i++)
-						VDao.deleteVehicle(regNumList.get(i));
+					/*for (int i = 0; i < regNumList.size(); i++)
+						VDao.deleteVehicle(regNumList.get(i));*/
 				}
 			}
 			conn = dataSrc.getConnection();
 			pstmt = conn.prepareStatement("delete from account where id = ?");
 			pstmt.setString(1, id);
 			int ret = pstmt.executeUpdate();
-			if (ret == 1)
-				System.out.println("ȸ��Ż�� �Ϸ�!");
+			if (ret == 1) {
 			conn.commit();
+			System.out.println("성공");
 			return true;
-
+			}
 		} catch (SQLException e) {
 			System.err.println("[withdrawalAccount] sql error : " + e.getMessage());
-		}*/
+		}
+		System.out.println("실패");
 		return false;
 	}
 }

@@ -375,6 +375,31 @@ public class VehicleDAO {
 		return list;
 	}
 	
+	public void updateSellerId(String id) {
+		int ret = 0;
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("update vehicle set seller_id='admin' where seller_id=?");
+			pstmt.setString(1, id);
+			ret = pstmt.executeUpdate();
+			conn.commit();
+		} catch (SQLException e) {
+			System.err.println("");
+		}
+	}
+	
+	public void deleteVehicle(int regNum) {
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("delete from vehicle where registration_number=?");
+			pstmt.setInt(1, regNum);
+			int ret = pstmt.executeUpdate();
+			conn.commit();
+		} catch (SQLException e) {
+			System.err.println("[deleteVehicle] sql error : " + e.getMessage());
+		}
+	}
+	
 	/*private static boolean setColumnCondition(String column, HashMap<String, ArrayList<String>> conditions) {
 		// 현재 설정된 조건 항목에 의해 선택된 항목을 출력하기 위해 where절 갱신
 		// 갱신된 where절에 의해 필터링된 category 리스트를 가져옴.

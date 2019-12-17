@@ -128,6 +128,8 @@ public class AccountController extends HttpServlet {
 				String user_id = (String)request.getParameter("id");
 				String account_type = (String)request.getParameter("account_type");
 				boolean ret = accountService.withdrawal(user_id, account_type);
+				
+				nextPage="/login/logout.jsp";
 			}
 			RequestDispatcher dispatcher = request.getRequestDispatcher(nextPage);
 			dispatcher.forward(request, response);
