@@ -127,6 +127,7 @@ public class OrderlistController extends HttpServlet {
 				recommendedCar = orderlistService.recommendCar(user.getSex(), user.getBirth_date());
 
 				session.setAttribute("recommend", recommendedCar);
+				//asf
 				nextPage = "/Orderlist/recommendedVehicleForm.jsp";
 			}else {
 				nextPage = "/vehicle/list.do";
