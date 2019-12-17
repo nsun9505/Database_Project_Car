@@ -82,7 +82,7 @@ public class OrderlistController extends HttpServlet {
 				}
 				
 				if(orderlist != null) {
-					request.setAttribute("order_list", orderlist);
+					session.setAttribute("order_list", orderlist);
 					System.out.println("개수 : "+orderlist.size());
 				}
 				nextPage = "/Orderlist/orderlist.jsp";
@@ -107,6 +107,18 @@ public class OrderlistController extends HttpServlet {
 				if(res==true)
 					System.out.println(regnum+" 공개 성공");
 				nextPage="/index.jsp";
+			} else if(action.equals("/getTotalIntake.do")) {
+				String make = (String)request.getParameter("selected_make");
+				String year = (String)request.getParameter("selected_year");
+				String month = (String)request.getParameter("selected_month");
+				String type = (String)request.getParameter("selected_intake");
+				
+				long ret = orderlistService.getIntake(make, year, month, type);
+				if(ret != -1) {
+					request.setAttribute("intakeResult", ret);
+					request.setAttribute("resultString", orderlistService.getIntakeString(type, make, year, month));
+				}
+				nextPage = "/Orderlist/orderlist.jsp";
 			}else {
 				nextPage = "/vehicle/list.do";
 			}
@@ -117,6 +129,4 @@ public class OrderlistController extends HttpServlet {
 			System.out.println("[Orderlist Controller ERROR] : "+e.getMessage());
 		}
 	}
-
-
 }

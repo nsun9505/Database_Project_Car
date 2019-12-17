@@ -123,4 +123,62 @@ public class OrderlistDAO {
 		}
 		return list;
 	}
+
+	public long getIntakeByFlag(String year, String month, String make, int flag) {
+		long sum = 0;
+		ResultSet rs = null;
+		String query = "";
+		if (flag == 1) {// ������ �Է�
+			query = "select sum(v.price) " + "from order_list o, vehicle v, detailed_model dm, model m "
+					+ "where TO_CHAR(o.sell_date,'YYYY') = '" + year + "' "
+					+ "and o.registration_number = v.registration_number ";
+		} else if (flag == 2) {// ����, �� �Է�
+			query = "select sum(v.price) " + "from order_list o, vehicle v, detailed_model dm, model m "
+					+ "where TO_CHAR(o.sell_date,'YYYY-MM') = '" + year + "-" + month + "' "
+					+ "and o.registration_number = v.registration_number ";
+		} else if (flag == 3) {// �� �����
+			query = "select sum(v.price) " + "from order_list o, vehicle v "
+					+ "where o.registration_number = v.registration_number ";
+		} else if (flag == 4) {// ���� + ������ �Է�
+			query = "select sum(v.price) " + "from order_list o, vehicle v, detailed_model dm, model m "
+					+ "where TO_CHAR(o.sell_date,'YYYY') = '" + year + "' "
+					+ "and o.registration_number = v.registration_number "
+					+ "and v.detailed_model_name = dm.detailed_model_name " + "and dm.model_name = m.model_name "
+					+ "and m.make = '" + make + "'";
+		} else if (flag == 5) {// ����,�� + ������ �Է�
+			query = "select sum(v.price) " + "from order_list o, vehicle v, detailed_model dm, model m "
+					+ "where TO_CHAR(o.sell_date,'YYYY-MM') = '" + year + "-" + month + "' "
+					+ "and o.registration_number = v.registration_number "
+					+ "and v.detailed_model_name = dm.detailed_model_name " + "and dm.model_name = m.model_name "
+					+ "and m.make = '" + make + "'";
+		} else if (flag == 6) {// �����縸 �Է�
+			query = "select sum(v.price) " + "from order_list o, vehicle v, detailed_model dm, model m "
+					+ "where o.registration_number = v.registration_number "
+					+ "and v.detailed_model_name = dm.detailed_model_name " + "and dm.model_name = m.model_name "
+					+ "and m.make = '" + make + "'";
+		} else {
+			return -1;
+		}
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			while (rs.next())
+				sum = rs.getLong(1);
+
+		} catch (SQLException e) {
+			System.err.println("[getCostSum]sql error : " + e.getMessage());
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
+			} catch (SQLException e) {
+				System.err.println("[getCostSum]sql error : " + e.getMessage());
+			}
+		}
+
+		return sum;
+	}
 }

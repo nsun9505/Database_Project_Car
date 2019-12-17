@@ -179,11 +179,11 @@
             <input type="button" class="btn btn-success btn-lg btn-block" value="register" onclick="return checkInfo()">
         </div>
        	<c:choose>
-       		<c:when test="${userInfo.account_type == null || userInfo.account_type eq 'C'}">
-       			<input type="hidden" name="account_type" value="C">
+       		<c:when test="${userInfo ne null && userInfo.account_type eq 'A'}">
+       			<input type="hidden" name="account_type" value="A">
        		</c:when>
        		<c:otherwise>
-       			<input type="hidden" name="account_type" value="A">
+       			<input type="hidden" name="account_type" value="C">
        		</c:otherwise>
        	</c:choose>
     </form>

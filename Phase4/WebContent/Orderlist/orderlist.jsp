@@ -4,8 +4,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="userInfo" value="${sessionScope.userInfo }" />
-<c:set var="order_list" value="${requestScope.order_list}" />
+<c:set var="order_list" value="${sessionScope.order_list}" />
 <c:set var="make_list" value="${sessionScope.make_list}"/>
+<c:set var="intakeResult" value="${requestScope.intakeResult }"/>
+<c:set var="resultString" value="${requestScope.resultString }"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -60,10 +62,13 @@
 						<form action="${contextPath}/orderlist/getTotalIntake.do">
 							<input type="hidden" value="" id="selected_intake_id" name="selected_intake">
 							<div class="form-group" id="selected_output">
+							<c:if test="${intakeResult ne null }">
+								<h1>${resultString}</h1>
+								<h1>${intakeResult}원</h1>
+							</c:if>
 							</div>
 						</form>
 					</c:if>
-					<h1></h1>
 				</div>
 				<hr>
 				<div>
@@ -77,7 +82,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${requestScope.order_list}" var="order">
+							<c:forEach items="${sessionScope.order_list}" var="order">
 								<tr>
 									<th scope="row">${order.registration_number }</th>
 									<th>${order.seller_id}</th>
@@ -101,20 +106,28 @@
 		var intake_type = selected_obj.options[selected_idx].value;
 		if(intake_type != "NONE"){
 			var myDiv = document.getElementById("selected_output");
+			var type = document.getElementById("selected_intake_id");
+			type.value= intake_type;
 			myDiv.innerHTML = "";
 			switch(intake_type){
 			case "makeTotal":
 				printMake();
+				break;
+			case "makeYear":
+				printMake();
+				printYear();
+				break;
+			case "makeMonth":
+				printMake();
 				printYear();
 				printMonth();
 				break;
-			case "makeYear":
-				break;
-			case "makeMonth":
-				break;
 			case "yearTotal":
+				printYear();
 				break;
 			case "monthTotal":
+				printYear();
+				printMonth();
 				break;
 			case "systemTotal":
 				break;
@@ -127,21 +140,21 @@
 		var myDiv = document.getElementById("selected_output");
 		var myMonth ="";
 		myDiv.innerHTML += "<select name='selected_month' id='selected_month_id' class='form-control'>"
-		for(var i=1; i<=12; i++){
-			myMonth += '<option value="'+i'">'+i+'</option>';
-		}
 		myDiv.innerHTML +="</select>";
+		for(var i=1; i<=12; i++){
+			myMonth += "<option value='"+i+"'>"+i+"</option>";
+		}
 		document.getElementById("selected_month_id").innerHTML = myMonth;
 	}
 	
 	function printYear(){
 		var myDiv = document.getElementById("selected_output");
 		var myYear ="";
-		myDiv.innerHTML += '<select name="selected_year" id="selected_year_id" class="form-control">'
-		for(var i=1980; i<=2019; i++){
-			myYear += '<option value="'+i+'">'+i+'</option>';
-		}
+		myDiv.innerHTML += "<select name='selected_year' id='selected_year_id' class='form-control'>"
 		myDiv.innerHTML +="</select>";
+		for(var i=1980; i<=2019; i++){
+			myYear += "<option value='"+i+"'>"+i+"</option>";
+		}
 		document.getElementById("selected_year_id").innerHTML = myYear;
 	}
 	
@@ -155,10 +168,9 @@
 		myDiv.innerHTML += "<select name='selected_make' id='selected_make_id' class='form-control'>"
 		myDiv.innerHTML += "</select>";
 		for(var i=0; i<list.length; i++){
-			myMake += '<option value="'+list[i]+'">'+list[i]+'</option>'
+			myMake += "<option value='"+list[i]+"'>"+list[i]+"</option>"
 		}
 		document.getElementById("selected_make_id").innerHTML = myMake;
 	}
-	
 </script>
 </html>
