@@ -399,6 +399,42 @@ public class VehicleDAO {
 			System.err.println("[deleteVehicle] sql error : " + e.getMessage());
 		}
 	}
+
+	public ArrayList<VehicleVO> getInitList() {
+		ArrayList<VehicleVO> ret = new ArrayList<VehicleVO>();
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(getBasicVehicleInfoQuery);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next())
+				ret.add(new VehicleVO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4).toString().substring(0, 4), 
+						rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8), rs.getString(9)));
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public ArrayList<VehicleVO> getVehicleListByQuery(String ret) {
+		String query = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color from ALL_VEHICLE_INFO where registration_number not in (select registration_number from order_list) ";
+		ArrayList<VehicleVO> vehicle_list = new ArrayList<VehicleVO>();
+		if(ret != null)
+			query += " AND " + ret + " order by registration_number desc ";
+		else
+			query += " order by registration_number desc";
+		
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(query);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next())
+				vehicle_list.add(new VehicleVO(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDate(4).toString().substring(0, 4), 
+						rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8), rs.getString(9)));
+		}catch(SQLException e) {
+			System.err.println("[getVehicleListByQuery] sql error : " + e.getMessage());
+		}
+		return vehicle_list;
+	}
 	
 	/*private static boolean setColumnCondition(String column, HashMap<String, ArrayList<String>> conditions) {
 		// 현재 설정된 조건 항목에 의해 선택된 항목을 출력하기 위해 where절 갱신

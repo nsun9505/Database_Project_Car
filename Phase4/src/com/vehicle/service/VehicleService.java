@@ -8,45 +8,51 @@ import com.vehicle.vo.VehicleVO;
 
 public class VehicleService {
 	VehicleDAO vehicleDAO;
-	
+
 	public VehicleService() {
 		this.vehicleDAO = new VehicleDAO();
 	}
-	
+
 	public VehicleVO carInfo(int regnum) {
 		VehicleVO car = null;
-		
+
 		car = vehicleDAO.carInfo(regnum);
-		
+
 		return car;
 	}
-	
-	public boolean modifyVehicle(int regnum,String detailed_model_name,String model_year,int price,int mileage,String location,String fuel,String color,int engine_displacement,String transmission,String car_number,String sellerId) {		
+
+	public boolean modifyVehicle(int regnum, String detailed_model_name, String model_year, int price, int mileage,
+			String location, String fuel, String color, int engine_displacement, String transmission, String car_number,
+			String sellerId) {
 		boolean ret = false;
-		
-		VehicleVO newVehicle = new VehicleVO(detailed_model_name,model_year, price, mileage, location, fuel, color,engine_displacement, transmission, car_number, sellerId);
-		
-		ret = vehicleDAO.modifyVehicle(newVehicle,regnum);
-		
-		if(ret == true)
+
+		VehicleVO newVehicle = new VehicleVO(detailed_model_name, model_year, price, mileage, location, fuel, color,
+				engine_displacement, transmission, car_number, sellerId);
+
+		ret = vehicleDAO.modifyVehicle(newVehicle, regnum);
+
+		if (ret == true)
 			System.out.println("성공!!!!");
-		
+
 		return ret;
 	}
-	
-	public boolean addVehicle(String detailed_model_name,String model_year,int price,int mileage,String location,String fuel,String color,int engine_displacement,String transmission,String car_number,String sellerId) {		
+
+	public boolean addVehicle(String detailed_model_name, String model_year, int price, int mileage, String location,
+			String fuel, String color, int engine_displacement, String transmission, String car_number,
+			String sellerId) {
 		boolean ret = false;
-		
-		VehicleVO newVehicle = new VehicleVO(detailed_model_name,model_year, price, mileage, location, fuel, color,engine_displacement, transmission, car_number, sellerId);
-		
+
+		VehicleVO newVehicle = new VehicleVO(detailed_model_name, model_year, price, mileage, location, fuel, color,
+				engine_displacement, transmission, car_number, sellerId);
+
 		ret = vehicleDAO.insertVehicle(newVehicle);
-		
-		if(ret == true)
+
+		if (ret == true)
 			System.out.println("성공!!!!");
-		
+
 		return ret;
 	}
-	
+
 	public HashMap<String, ArrayList<String>> initCondition() {
 		HashMap<String, ArrayList<String>> conditions = new HashMap<String, ArrayList<String>>();
 		conditions.put("category", getCategoryList());
@@ -58,58 +64,57 @@ public class VehicleService {
 		// TODO Auto-generated method stub
 		return conditions;
 	}
-	
+
 	public ArrayList<String> getLocationList() {
 		ArrayList<String> locationsList = vehicleDAO.getLocationList();
 		return locationsList;
 	}
 
-
-	public ArrayList<String> getCategoryList(){
+	public ArrayList<String> getCategoryList() {
 		ArrayList<String> A = vehicleDAO.getCategory();
 		return A;
 	}
 
 	public ArrayList<String> getMakeList() {
-		ArrayList<String> A=vehicleDAO.getMake();
+		ArrayList<String> A = vehicleDAO.getMake();
 		return A;
 	}
-	
-	public ArrayList<String> getModelList(String make){
+
+	public ArrayList<String> getModelList(String make) {
 		ArrayList<String> A = vehicleDAO.getModel(make);
 		return A;
 	}
 
-	public ArrayList<String> getDetailelList(String model){
+	public ArrayList<String> getDetailelList(String model) {
 		ArrayList<String> A = vehicleDAO.getDetaile(model);
 		return A;
 	}
 
-	public ArrayList<String> getEngineList(String detaile){
+	public ArrayList<String> getEngineList(String detaile) {
 		ArrayList<String> A = vehicleDAO.getEngine(detaile);
 		return A;
 	}
-	
-	public ArrayList<String> getFuelList(){
+
+	public ArrayList<String> getFuelList() {
 		ArrayList<String> A = vehicleDAO.getFuel();
 		return A;
 	}
-	
-	public ArrayList<String> getColorList(){
+
+	public ArrayList<String> getColorList() {
 		ArrayList<String> A = vehicleDAO.getColor();
 		return A;
 	}
-	
-	public ArrayList<String> getTransList(){
+
+	public ArrayList<String> getTransList() {
 		ArrayList<String> A = vehicleDAO.getTrans();
 		return A;
 	}
-	
+
 	public String checkCarnumber(String carnum) {
 		String A = vehicleDAO.getCarnumber(carnum, 0);
 		return A;
 	}
-	
+
 	private static boolean setColumnCondition(String column, HashMap<String, ArrayList<String>> conditions) {
 		// 현재 설정된 조건 항목에 의해 선택된 항목을 출력하기 위해 where절 갱신
 		// 갱신된 where절에 의해 필터링된 category 리스트를 가져옴.
@@ -119,7 +124,7 @@ public class VehicleService {
 		ArrayList<String> list = VDao.getConditionList(column, whereClusure);
 		return setConditionForColumn(list, conditions, column);
 	}
-	
+
 	private static boolean setConditionForColumn(ArrayList<String> list, HashMap<String, ArrayList<String>> conditions,
 			String column) {
 		Scanner sc = new Scanner(System.in);
@@ -164,7 +169,6 @@ public class VehicleService {
 		}
 	}
 
-	
 	private static String getWhereClusureByColumn(HashMap<String, ArrayList<String>> conditions, String column) {
 		ArrayList<String> list = null;
 		ArrayList<String> query = new ArrayList<String>();
@@ -222,7 +226,7 @@ public class VehicleService {
 
 		return combinationConditions(query);
 	}
-	
+
 	private static void addCategoryCondition(ArrayList<String> list, ArrayList<String> query) {
 		String category = "";
 		for (int i = 0; i < list.size(); i++)
@@ -232,7 +236,7 @@ public class VehicleService {
 		if (category.equals("") == false)
 			query.add(category);
 	}
-	
+
 	private static boolean addDetailedModelNameCondition(ArrayList<String> list, ArrayList<String> query) {
 		String detailed_model_name = "";
 		for (int i = 0; i < list.size(); i++)
@@ -245,7 +249,7 @@ public class VehicleService {
 		}
 		return false;
 	}
-	
+
 	private static boolean addModelCondition(ArrayList<String> list, ArrayList<String> query) {
 		String model = "";
 		for (int i = 0; i < list.size(); i++)
@@ -258,7 +262,7 @@ public class VehicleService {
 		}
 		return false;
 	}
-	
+
 	private static boolean addMakeCondition(ArrayList<String> list, ArrayList<String> query) {
 		String make = "";
 		for (int i = 0; i < list.size(); i++)
@@ -270,13 +274,13 @@ public class VehicleService {
 		}
 		return false;
 	}
-	
+
 	private static void addMinModelYearCondition(ArrayList<String> list, ArrayList<String> query) {
-		query.add("model_year >= TO_DATE('" + list.get(0) + "', ('YYYY-MM'))");
+		query.add("model_year >= TO_DATE('" + list.get(0) + "', ('YYYY'))");
 	}
 
 	private static void addMaxModelYearCondition(ArrayList<String> list, ArrayList<String> query) {
-		query.add("model_year <= TO_DATE('" + list.get(0) + "', ('YYYY-MM'))");
+		query.add("model_year <= TO_DATE('" + list.get(0) + "', ('YYYY'))");
 	}
 
 	private static void addMinMileageCondition(ArrayList<String> list, ArrayList<String> query) {
@@ -294,7 +298,7 @@ public class VehicleService {
 	private static void addMaxPriceCondition(ArrayList<String> list, ArrayList<String> query) {
 		query.add("price <=" + list.get(0));
 	}
-	
+
 	private static void addColorCondition(ArrayList<String> list, ArrayList<String> query) {
 		String color = "";
 		for (int i = 0; i < list.size(); i++)
@@ -341,7 +345,74 @@ public class VehicleService {
 		String ret = "";
 		for (int i = 0; i < query.size(); i++)
 			ret += query.get(i) + (i == query.size() - 1 ? " " : " AND ");
-
 		return ret;
+	}
+
+	public ArrayList<VehicleVO> getInitList() {
+		ArrayList<VehicleVO> ret = vehicleDAO.getInitList();
+		return null;
+	}
+
+	public ArrayList<VehicleVO> getVehicleListByQuery(HashMap<String, ArrayList<String>> conditions) {
+		ArrayList<String> query = new ArrayList<String>();
+		if (conditions.containsKey("category")) {
+			ArrayList<String> list = conditions.get("category");
+			addCategoryCondition(list, query);
+		}
+		if (conditions.containsKey("make")) {
+			ArrayList<String> list = conditions.get("category");
+			addMakeCondition(list, query);
+		}
+		if (conditions.containsKey("model_name")) {
+			ArrayList<String> list = conditions.get("model_name");
+			addModelCondition(list, query);
+		}
+		if (conditions.containsKey("detailed_model_name")) {
+			ArrayList<String> list = conditions.get("detailed_model_name");
+			addDetailedModelNameCondition(list, query);
+		}
+		if (conditions.containsKey("min_model_year")) {
+			ArrayList<String> list = conditions.get("min_model_year");
+			addMinModelYearCondition(list, query);
+		}
+		if (conditions.containsKey("max_model_year")) {
+			ArrayList<String> list = conditions.get("max_model_year");
+			addMaxModelYearCondition(list, query);
+		}
+		if (conditions.containsKey("min_mileage")) {
+			ArrayList<String> list = conditions.get("min_mileage");
+			addMinMileageCondition(list, query);
+		}
+		if (conditions.containsKey("max_mileage")) {
+			ArrayList<String> list = conditions.get("max_mileage");
+			addMaxMileageCondition(list, query);
+		}
+		if (conditions.containsKey("min_price")) {
+			ArrayList<String> list = conditions.get("min_price");
+			addMinPriceCondition(list, query);
+		}
+		if (conditions.containsKey("max_price")) {
+			ArrayList<String> list = conditions.get("max_price");
+			addMaxPriceCondition(list, query);
+		}
+		if (conditions.containsKey("location")) {
+			ArrayList<String> list = conditions.get("location");
+			addLocationCondition(list, query);
+		}
+		if (conditions.containsKey("color")) {
+			ArrayList<String> list = conditions.get("color");
+			addColorCondition(list, query);
+		}
+		if (conditions.containsKey("fuel")) {
+			ArrayList<String> list = conditions.get("fuel");
+			addFuelCondition(list, query);
+		}
+		if (conditions.containsKey("transmission")) {
+			ArrayList<String> list = conditions.get("transmission");
+			addTransmissionCondition(list, query);
+		}
+		String ret = combinationConditions(query);
+		ArrayList<VehicleVO> vehicle_list = vehicleDAO.getVehicleListByQuery(ret);
+		return vehicle_list;
 	}
 }

@@ -20,7 +20,7 @@ public class VehicleVO {
 	private String country;
 	private String sellerId;
 
-	/*public VehicleVO(int regNum, String make, String detailed_model_name, String model_year, int price, int mileage,
+	public VehicleVO(int regNum, String make, String detailed_model_name, String model_year, int price, int mileage,
 			String location, String fuel, String color, String category, int engine_displacement, String transmission,
 			String car_number, String model_name, String country, String sellerId) {
 		this.regNum = regNum;
@@ -39,7 +39,22 @@ public class VehicleVO {
 		this.model_name = model_name;
 		this.country = country;
 		this.sellerId = sellerId;
-	}*/
+	}
+	
+	public VehicleVO(int regNum, String make, String detailed_model_name, String model_year, int price,
+			int mileage, String location, String fuel, String color) {
+		super();
+		this.regNum = regNum;
+		this.make = make;
+		this.detailed_model_name = detailed_model_name;
+		this.model_year = model_year;
+		this.price = price;
+		this.mileage = mileage;
+		this.location = location;
+		this.fuel = fuel;
+		this.color = color;
+	}
+	
 	public VehicleVO(String detailed_model_name, String model_year, int price, int mileage,
 			String location, String fuel, String color, int engine_displacement, String transmission,
 			String car_number, String sellerId) {

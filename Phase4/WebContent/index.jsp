@@ -5,11 +5,11 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
-		String isLogon = (String)session.getAttribute("isLogon");
-		HashMap<String, ArrayList<String>> conditions = (HashMap<String, ArrayList<String>>) session.getAttribute("conditions");
+	String isLogon = (String) session.getAttribute("isLogon");
 %>
-<c:if test=${sessionScope.init eq null }>
-<jsp:forward page="${contextPath}/vehicle/list.do"></jsp:forward>
+
+<c:if test="${sessionScope.init eq null }">
+	<jsp:forward page="/vehicle/list.do"></jsp:forward>
 </c:if>
 
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
@@ -19,17 +19,16 @@
 <c:set var="model_List" value="${sessionScope.model_list}" />
 <c:set var="detailed_list" value="${sessionScope.detailed_list}" />
 <c:set var="min_model_year" value="${sessionScope.min_model_year}" />
-<c:set var="min_model_month" value="${sessionScope.min_model_month}" />
 <c:set var="max_model_year" value="${sessionScope.max_model_year}" />
-<c:set var="max_model_month" value="${sessionScope.max_model_month}" />
 <c:set var="min_mileage" value="${sessionScope.min_mileage}" />
-<c:set var="userImax_mileagenfo" value="${sessionScope.max_mileage}" />
+<c:set var="max_mileage" value="${sessionScope.max_mileage}" />
 <c:set var="min_price" value="${sessionScope.min_price}" />
 <c:set var="max_price" value="${sessionScope.max_price}" />
 <c:set var="location_list" value="${sessionScope.location_list}" />
 <c:set var="color_list" value="${sessionScope.color_list}" />
 <c:set var="fuel_list" value="${sessionScope.fuel_list}" />
 <c:set var="transmission_list" value="${sessionScope.transmission_list}" />
+<c:set var="vehicle_list" value="${sessionScope.vehicle_list}" />
 <!doctype html>
 <html>
 <head>
@@ -110,12 +109,16 @@ html, body, .grid-container {
 </head>
 <body>
 	<div class="grid-container">
-		<div class="E1"></div>
+		<div class="E1">
+			<form name="transferForm" method="post">
+				<input type="text" value="" name="condition" id="setCondition">
+			</form>
+		</div>
 		<div class="E2"></div>
 		<div class="E3"></div>
 		<div class="Header">
 			<ul class="nav justify-content-center" style="height: 100%">
-				<li class="nav-item"><a class="nav-link" href="index.jsp">중고차
+				<li class="nav-item"><a class="nav-link" href="/Phase4/vehicle/init.do">중고차
 						판매 사이트</a></li>
 			</ul>
 		</div>
@@ -142,6 +145,9 @@ html, body, .grid-container {
 								</c:choose>
 							</button>
 						</li>
+						<c:if test="${userInfo ne null && userInfo.account_type eq 'A' }">
+							<li class="nav-item"><button class="nav-link" style="height:100%; background-color:white; border:none">비공개 리스트</button></li>
+						</c:if>
 						<li class="nav-item">
 							<button class="nav-link"
 								style="height: 100%; background-color: white; border: none;"
@@ -163,7 +169,7 @@ html, body, .grid-container {
 						<c:forEach items="${category_list }" var="category">
 							<div>
 								<label><input type="checkbox" value="${category}"
-									name="change_category">${category }</label>
+									name="change_category" onclick="change_category(this)">${category }</label>
 							</div>
 						</c:forEach>
 					</div>
@@ -173,8 +179,8 @@ html, body, .grid-container {
 				<c:when test="${modelList eq null && detailedList eq null }">
 					<div>
 						<label for="select_make_id">Make</label> <select id="select_make"
-							onchange="change_make();">
-							<option value="">Make</option>
+							onchange="change_make(this)">
+							<option value="X">선택</option>
 							<c:forEach items="${make_list }" var="make">
 								<option value="${make }">${make }</option>
 							</c:forEach>
@@ -184,8 +190,8 @@ html, body, .grid-container {
 				<c:when test="${model_list ne null && detailed_list eq null }">
 					<div>
 						<label for="select_model_id">Model</label> <select
-							id="select_model" onchange="change_model();">
-							<option value="">Model</option>
+							id="select_model" onchange="change_model(this);">
+							<option value="X">선택</option>
 							<c:forEach items="${model_list }" var="model">
 								<option value="${model}">${model}</option>
 							</c:forEach>
@@ -195,119 +201,251 @@ html, body, .grid-container {
 				<c:when test="${make_list ne null && model_list ne null }">
 					<div>
 						<label for="select_detailed_id">Model</label> <select
-							id="select_detailed_id" onchange="change_detailed();">
-							<option value="">Model</option>
+							id="select_detailed_id" onchange="change_detailed(this);">
+							<option value="X">선택</option>
 							<c:forEach items="${detailed_list }" var="detailed">
 								<option value="${detailed}">${detailed}</option>
 							</c:forEach>
 						</select>
 					</div>
 				</c:when>
-			</c:choose><br>
-
-			<label for="model_year">Model Year</label>
+			</c:choose>
+			<br> <label for="model_year">Model Year</label>
 			<div id="model_year">
 				<select name="min_model_year" onchange="change_min_year(this)">
-					<option value="">년</option>
+					<option value="X">년</option>
 					<c:forEach var="i" begin="${min_model_year}"
 						end="${max_model_year }" step="1">
 						<option value="${i}">${i}년</option>
 					</c:forEach>
 				</select>부터<br> <select name="max_model_year"
 					onchange="change_max_year(this)">
-					<option value="">년</option>
+					<option value="X">년</option>
 					<c:forEach var="i" begin="${min_model_year}"
 						end="${max_model_year }" step="1">
 						<option value="${i}">${i}년</option>
 					</c:forEach>
 				</select>까지
 			</div><br>
-			
-			<label for="price_div">Price</label>
+			<label for="min_mileage_id">Mileage</label>
+			<div id="min_mileage_id">
+				<select name="min_mileage" onchange="change_min_mileage(this)">
+					<option value="X">선택</option>
+					<c:forEach var="i" begin="${min_mileage }" end="${max_mileage }" step="10000">
+						<option value="${i}">${i}km</option>
+					</c:forEach>
+				</select>부터<br>
+				<select name="min_mileage" onchange="change_max_mileage(this)">
+					<option value="X">선택</option>
+					<c:forEach var="i" begin="${min_mileage }" end="${max_mileage }" step="10000">
+						<option value="${i}">${i}km</option>
+					</c:forEach>
+				</select>까지
+			</div>
+			<br> <label for="price_div">Price</label>
 			<div id="price_div">
 				<select name="min_price" onchange="change_min_price(this)">
-					<option value="">선택</option>
-					<c:forEach var="i" begin="${min_price }" end="${max_price }" step="500">
+					<option value="X">선택</option>
+					<c:forEach var="i" begin="${min_price }" end="${max_price }"
+						step="500">
 						<option value="${i}">${i}만원</option>
 					</c:forEach>
-				</select>부터<br> 
-				<select name="max_price" onchange="change_max_price(this)">
-					<option value="">선택</option>
-					<c:forEach var="i" begin="${min_price }" end="${max_price }" step="500">
+				</select>부터<br> <select name="max_price"
+					onchange="change_max_price(this)">
+					<option value="X">선택</option>
+					<c:forEach var="i" begin="${min_price }" end="${max_price }"
+						step="500">
 						<option value="${i}">${i}만원</option>
 					</c:forEach>
 				</select>까지
-			</div><br>
-			
-			<label for="location_div">Location</label>
-			<div id="location_div">
-				<select name="select_color" onchange="change_loca()">
-				<c:forEach items="${locations_list }" var="loca">
-					<option value="${loca }">${loca }</option>
-				</c:forEach>
-				</select>
 			</div>
-			
+			<br> <label for="location_div">Location</label>
+			<div id="location_div">
+				<c:forEach items="${location_list }" var="loca">
+					<div>
+						<label><input type="checkbox" value="${loca}"
+							name="change_location" onclick="change_location(this)">${loca }</label>
+					</div>
+				</c:forEach>
+			</div>
+
 			<label for="color_div">Color</label>
 			<div id="color_div">
-				<select name="select_color" onchange="change_color()">
 				<c:forEach items="${color_list }" var="color">
-					<option value="${color }">${color }</option>
+					<div>
+						<label><input type="checkbox" value="${color}"
+							name="change_color" onclick="change_color(this)">${color }</label>
+					</div>
 				</c:forEach>
-				</select>
 			</div>
-			
-			<label for="fuel_div">Feul</label>
+
+			<label for="fuel_div">Fuel</label>
 			<div id="fuel_div">
-				<select name="select_color" onchange="change_fuel()">
 				<c:forEach items="${fuel_list }" var="fuel">
-					<option value="${fuel }">${fuel }</option>
+					<div>
+						<label><input type="checkbox" value="${fuel}"
+							name="change_fuel" onclick="change_fuel(this)">${fuel }</label>
+					</div>
 				</c:forEach>
-				</select>
 			</div>
-			
-			<label for="transmission_div">Feul</label>
+
+			<label for="transmission_div">Transmission</label>
 			<div id="transmission_div">
-				<select name="select_transmission" onchange="change_transmission()">
 				<c:forEach items="${transmission_list }" var="trans">
-					<option value="${trans }">${trans }</option>
+					<div>
+						<label><input type="checkbox" value="${trans}"
+							name="change_transmission" onclick="change_transmission(this)">${trans }</label>
+					</div>
 				</c:forEach>
-				</select>
 			</div>
-			
-			<div class="Content"></div>
 		</div>
+		<div class="Content">
+		
+		<table class="table table-hover">
+  		<thead>
+   			<tr>
+    	  	<th scope="col">Regnum</th>
+      		<th scope="col">First</th>
+      		<th scope="col">Last</th>
+      		<th scope="col">Handle</th>
+    		</tr>
+  		</thead>
+  		<tbody>
+    	<tr>
+      	<th scope="row">1</th>
+      	<td>Mark</td>
+      	<td>Otto</td>
+      	<td>@mdo</td>
+    	</tr>
+    	<tr>
+      <th scope="row">2</th>
+      <td>Jacob</td>
+      <td>Thornton</td>
+      <td>@fat</td>
+    </tr>
+    <tr>
+      <th scope="row">3</th>
+      <td colspan="2">Larry the Bird</td>
+      <td>@twitter</td>
+    </tr>
+  </tbody>
+</table>
+		</div>
+	</div>
 </body>
 <script>
-function modifyPopup(){
-	var url = "/Phase4/modify/modifyInfoForm.jsp";
-	var name = "_blank";
-	var specs = "";
-	window.open(url, name, specs);
-}
+	function modifyPopup() {
+		var url = "/Phase4/modify/modifyInfoForm.jsp";
+		var name = "_blank";
+		var specs = "";
+		window.open(url, name, specs);
+	}
 
-function orderListPopup(){
-	var url = "/Phase4/orderlist/myOrderList.do";
-	var name = "_blank";
-	var specs = "";
-	window.open(url, name, specs);
-}
+	function orderListPopup() {
+		var url = "/Phase4/orderlist/myOrderList.do";
+		var name = "_blank";
+		var specs = "";
+		window.open(url, name, specs);
+	}
 
-function change_category(){
+	function change_category(checked) {
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectCategory.do"
+				transferFrom.submit();
+		}
+	}
+	function change_make(selected) {
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMake.do"
+				transferFrom.submit();
+		}
+	}
+
+	function change_model(selected) {
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectModel.do"
+			transferFrom.submit();
+		}
+	}
 	
-}
-
-function change_make(){
+	function change_detailed(selected) {
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectDetailed.do"
+				transferFrom.submit();
+		}
+	}
+	function change_max_year(selected){
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMaxModelYear.do"
+				transferFrom.submit();
+		}
+	}
+	function change_min_year(selected){
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMinModelYear.do"
+				transferFrom.submit();
+		}
+	}
 	
-}
-
-function change_model(){
+	function change_max_mileage(selected){
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMaxMileage.do"
+				transferFrom.submit();
+		}
+	}
+	function change_min_mileage(selected){
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMinMileage.do"
+				transferFrom.submit();
+		}
+	}
 	
-}
-
-function change_model(){
+	function change_min_price(selected){
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMinPrice.do"
+				transferFrom.submit();
+		}
+	}
 	
-}
-
+	function change_max_price(selected){
+		if(selected.value != "X"){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectMaxPrice.do"
+				transferFrom.submit();
+		}
+	}
+	
+	function change_location(checked){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action = "/Phase4/vehicle/selectLocation.do"
+				transferFrom.submit();
+	}
+	function change_color(checked){
+			transferForm.condition.value = selected.options[selected.selectedIndex].value;
+			transferForm.action= "/Phase4/vehicle/selectColor.do"
+			transferFrom.submit();
+	}
+	
+	function change_fuel(checked){
+			transferForm.condition.value = checked.value;
+			alert(ceheck.value);
+			transferForm.action = "/Phase4/vehicle/selectFuel.do"
+			transferFrom.submit();
+	}
+	
+	function change_transmission(checked){
+			transferForm.condition.value = checked.value;
+			transferForm.action = "/Phase4/vehicle/selectTransmission.do"
+			transferFrom.submit();
+	}
 </script>
 </html>
