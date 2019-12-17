@@ -80,11 +80,11 @@ public class OrderlistDAO {
 			}
 		} else {
 			if (Bdate == null) {
-				query = "select model_name " + "from (select count(*) c, model_name" + "from sold_car s, account a"
-						+ "where a.sex = 'F'" + "and s.buyer_id = a.id" + "group by model_name)"
-						+ "where c = (select MAX(c)" + " from (select count(*) c, model_name"
-						+ "from sold_car s, account a" + "where a.sex = '" + sex + "'" + "and s.buyer_id = a.id"
-						+ "group by model_name))";
+				query = "select model_name " + " from (select count(*) c, model_name" + " from sold_car s, account a"
+						+ " where a.sex = 'F'" + " and s.buyer_id = a.id" + " group by model_name)"
+						+ " where c = (select MAX(c)" + " from (select count(*) c, model_name"
+						+ " from sold_car s, account a" + " where a.sex = '" + sex + "'" + " and s.buyer_id = a.id"
+						+ " group by model_name))";
 			} else if (year_num == 1950) {
 				query = "select model_name\r\n" + 
 						"from (select count(*) c, model_name\r\n" + 
