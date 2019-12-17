@@ -331,4 +331,25 @@ public class OrderlistDAO {
 			System.err.println("[deleteOrderListByRegNum] sql error : " + e.getMessage());
 		}
 	}
+
+	public ArrayList<String> secretVehicleList() {
+		ResultSet rs = null;
+		String secretListQuery = "select registration_number from order_list where buyer_id = 'admin'";
+		ArrayList<String> list = new ArrayList<String>();
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(secretListQuery);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) 
+				list.add(rs.getString(1));
+			
+
+		} catch (SQLException e) {
+			System.err.println("[secretVehicleList] sql error " + e.getMessage());
+		}
+
+		return list;
+		
+	}
 }
