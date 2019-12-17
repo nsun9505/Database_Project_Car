@@ -18,7 +18,6 @@ import com.vehicle.vo.VehicleVO;
 
 
 public class VehicleDAO {
-
 	private static final String getBasicVehicleInfoQuery = "select registration_number, make, detailed_model_name, model_year, price, mileage, location, fuel, color from ALL_VEHICLE_INFO where registration_number not in (select registration_number from order_list) order by registration_number desc";
 	private static final String getTableColumnNamesQuery = "select cname from col where tname=?";
 	private static final String getMakeListQuery = "select * from make";
@@ -318,5 +317,73 @@ public class VehicleDAO {
 		return src.matches(regExp);
 	}
 	
+
+	public ArrayList<String> getCategory() {
+		ArrayList<String> categories = new ArrayList<String>();
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("select * from category");
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next())
+				categories.add(rs.getString(1));
+		}catch(SQLException e) {
+			System.err.println("[getCategory] sql error " + e.getMessage());
+		}
+		return categories;
+	}
+
+	public ArrayList<String> getLocationList() {
+		ArrayList<String> list = new ArrayList<String>();
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement("select distinct location from vehicle");
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next())
+				list.add(rs.getString(1));
+		}catch(SQLException e) {
+			System.err.println("[getCategory] sql error " + e.getMessage());
+		}
+		return list;
+	}
+	
+	public ArrayList<String> getConditionList(String columnNmae, String whereClusure) {
+		ResultSet rs = null;
+		ArrayList<String> list = new ArrayList<String>();
+		String query = "select distinct " + columnNmae
+				+ " from ALL_VEHICLE_INFO WHERE registration_number not in (select registration_number from order_list) ";
+		if (whereClusure != null)
+			query += "AND " + whereClusure;
+		// System.out.println(query);
+		try {
+			conn = dataSrc.getConnection();
+			pstmt = conn.prepareStatement(query);
+			rs = pstmt.executeQuery();
+			while (rs.next())
+				list.add(rs.getString(1));
+		} catch (SQLException e) {
+			System.err.println("[getConditionList] sql error : " + e.getMessage());
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
+			} catch (SQLException e) {
+				System.err.println("[getConditionList] sql error : " + e.getMessage());
+			}
+		}
+		return list;
+	}
+	
+	/*private static boolean setColumnCondition(String column, HashMap<String, ArrayList<String>> conditions) {
+		// 현재 설정된 조건 항목에 의해 선택된 항목을 출력하기 위해 where절 갱신
+		// 갱신된 where절에 의해 필터링된 category 리스트를 가져옴.
+		// 필터링된 category 중 선택할 항목을 선택한 후 conditions를 갱신
+		VehicleDAO VDao = new VehicleDAO();
+		String whereClusure = getWhereClusureByColumn(conditions, column);
+		ArrayList<String> list = VDao.getConditionList(column, whereClusure);
+		return setConditionForColumn(list, conditions, column);
+	}*/
+
 
 }
